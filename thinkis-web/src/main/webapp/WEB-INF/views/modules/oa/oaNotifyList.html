@@ -1,0 +1,101 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li class="layui-this"><a href="${ctx}/oa/oaNotify/${oaNotify.self?'self':''}">通知列表</a></li>
+			<%if(oaNotify.self!=true){%>
+				<%if(shiro.hasPermission("oa:oaNotify:edit")){%>
+					<li><a href="${ctx}/oa/oaNotify/form">通知添加</a></li>
+				<%}%>
+			<%}%>
+	</ul>
+	<div class="layui-tab-content">
+		<blockquote class="layui-elem-quote quoteBox">
+			<form  class="layui-form" action="${ctx}/oa/oaNotify/${oaNotify.self?'self':''}" method="post">
+				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+				<div class="layui-inline">
+					<label>标题</label>
+					<div class="layui-input-inline">
+						<input type="text" name="title" class="layui-input" placeholder="标题">
+					</div>
+					<label>类型</label>
+					<div class="layui-input-inline">
+						<select name="type" class="input-medium">
+							<option value="" label="全部"/>
+							<#options items="${@DictUtils.getDictList('oa_notify_type')}" value="${oaNotify.type}"/>
+						</select>
+					</div>
+					<%if(!oaNotify.self){%>
+						<label>状态</label>
+						<div class="layui-input-inline">
+							<#radio name="status" items="${@DictUtils.getDictList('oa_notify_status')}" value="${oaNotify.status}"/>
+						</div>
+					<%}%>
+					<button class="layui-btn search_btn" lay-filter="*" lay-submit>查询</button>
+				</div>
+			</form>
+		</blockquote>
+		<#message content="${message!}"/>
+		<table class="layui-table" lay-even>
+			<thead>
+			<tr>
+				<th>标题</th>
+				<th>类型</th>
+				<th>状态</th>
+				<th>查阅状态</th>
+				<th>更新时间</th>
+				<%if(oaNotify.self!=true){%>
+				<%if(shiro.hasPermission("oa:oaNotify:edit")){%><th>操作</th><%}%>
+				<%}%>
+			</tr>
+			</thead>
+			<tbody>
+				<%for(notify in page.list){%>
+				<tr>
+					<td><a href="${ctx}/oa/oaNotify/${oaNotify.self?'view':'form'}?id=${notify.id}">
+							${@StringUtils.abbr(notify.title,50)}
+					</a></td>
+					<td>
+						${@DictUtils.getDictLabel(notify.type, 'oa_notify_type', '')}
+					</td>
+					<td>
+						${@DictUtils.getDictLabel(notify.status, 'oa_notify_status', '')}
+					</td>
+					<td>
+						<%if(oaNotify.self==true){%>
+							${@DictUtils.getDictLabel(notify.readFlag, 'oa_notify_read', '')}
+						<%}else{%>
+							${notify.readNum} / ${parseInt(notify.readNum) + parseInt(notify.unReadNum)}
+						<%}%>
+					</td>
+					<td>
+						${notify.updateDate,dateFormat="yyyy-MM-dd HH:mm:ss"}
+					</td>
+					<%if(!oaNotify.self){%>
+						<%if(shiro.hasPermission("oa:oaNotify:edit")){%>
+							<td>
+								<a class="layui-btn layui-btn-xs" href="${ctx}/oa/oaNotify/form?id=${notify.id}">修改</a>
+								<a class="layui-btn layui-btn-danger layui-btn-xs" href="${ctx}/oa/oaNotify/delete?id=${notify.id}" onclick="return confirmx('确认要删除该通知吗？', this.href)">删除</a>
+							</td>
+						<%}%>
+					<%}%>
+				</tr>
+				<%}%>
+			</tbody>
+		</table>
+		<div class="pagination">${page}</div>
+	</div>
+</div>
+<%}%>

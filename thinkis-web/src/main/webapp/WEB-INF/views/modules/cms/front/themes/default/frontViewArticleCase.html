@@ -1,0 +1,156 @@
+<%
+var headerPart = {
+%>
+<style type="text/css">.reply{border:1px solid #efefef;background:#fefefe;margin:10px;padding: 10px;}</style>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#flyReply").hide();
+        if ("${category.allowComment}"=="1" && "${article.articleData.allowComment}"=="1"){
+            $("#flyReply").show();
+        }
+    });
+    function page(n,s){
+        window.location.href="${article.url}?pageNo="+n+"&pageSize="+s+"&date="+new Date().getTime();
+    }
+</script>
+<% }; %>
+<% layout("/modules/cms/front/themes/default/common/layout.html",{headerSection:headerPart,nav:'index'}){ %>
+
+<div class="layui-container" style="padding-top: 15px;">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-col-md8 content detail">
+			<div class="fly-panel detail-box">
+				<h1>${article.title}</h1>
+				<div class="fly-detail-info">
+					<span class="layui-badge layui-bg-green fly-detail-column">${article.category.name}</span>
+					<%if(isNotEmpty(article.keywords)){%>
+					<span class="layui-badge layui-bg-black">${article.keywords}</span>
+					<%}%>
+					<span class="fly-list-nums">
+						<i class="iconfont" title="人气">&#xe60b;</i>${article.hits}
+				  	</span>
+				</div>
+				<div class="detail-about">
+					<a class="fly-avatar" href="#">
+						<img src="${article.user.photo}" alt="${article.user.name}">
+					</a>
+					<div class="fly-detail-user">
+						<a href="#" class="fly-link">
+							<cite>${article.user.name}</cite>
+						</a>
+					</div>
+					<div class="detail-hits" id="LAY_jieAdmin">
+						<span>${article.createDate,dateFormat="yyyy-MM-dd"}</span>
+					</div>
+				</div>
+				<div class="detail-body photos">
+					${article.articleData.content}
+				</div>
+			</div>
+
+			<div class="fly-panel detail-box" id="flyReply">
+				<fieldset class="layui-elem-field layui-field-title" style="text-align: center;">
+					<legend>回帖</legend>
+				</fieldset>
+
+				<ul class="jieda" id="comment">
+					<%for(comment in commentList.list){%>
+					<li data-id="${comment.id}" class="jieda-daan">
+						<div class="detail-about detail-about-reply">
+							<a class="fly-avatar" href="#">
+								<img src="${ctxPath}/static/images/default.png" alt=" ">
+							</a>
+							<div class="fly-detail-user">
+								<a href="#" class="fly-link">
+									<cite>${comment.name}</cite>
+								</a>
+							</div>
+							<div class="detail-hits">
+								<span>${comment.createDate,dateFormat="yyyy-MM-dd HH:mm:ss"}</span>
+							</div>
+						</div>
+						<div class="detail-body jieda-body photos">
+							${comment.content!}
+						</div>
+						<div class="jieda-reply">
+							<span type="reply">
+								<i class="iconfont icon-svgmoban53"></i>
+								回复
+							</span>
+						</div>
+					</li>
+					<%}elsefor{%>
+					<li class="fly-none">消灭零回复</li>
+					<%}%>
+				</ul>
+				<div class="pagination">${commentList}</div>
+
+				<div class="layui-form layui-form-pane">
+					<form method="post">
+						<input type="hidden" name="category.id" value="${article.category.id}"/>
+						<input type="hidden" name="contentId" value="${article.id}"/>
+						<input type="hidden" name="title" value="${article.title}"/>
+						<input type="hidden" name="replyId" id="L_replyId" value=""/>
+						<div class="layui-form-item layui-form-text">
+							<div class="layui-input-block">
+								<textarea id="L_content" name="content" required lay-verify="required" placeholder="请输入内容"  class="layui-textarea fly-editor" style="height: 150px;"></textarea>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<button id="submitComment" class="layui-btn" lay-filter="comment" lay-submit>提交回复</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="layui-col-md4">
+			<#frontArticleHitsTop category="${category}"  panelTitle="热门推荐"/>
+			<#frontRelationArticle relationList="${relationList}"  panelTitle="相关文章"/>
+			<#ad/>
+			<#images/>
+			<#links panelTitle="友情链接" siteId="${category.site.id}" categoryId="1011"/>
+		</div>
+	</div>
+</div>
+<script>
+    layui.cache.page ='jie';
+	layui.use(['form','fly','face'],function () {
+        var $ = layui.$,fly = layui.fly,face=layui.face;
+        //如果你是采用模版自带的编辑器，你需要开启以下语句来解析。
+		$('.jieda-body').each(function () {
+			var othis = $(this), html = othis.html();
+			othis.html(fly.content(html));
+		});
+        var form = layui.form;
+        form.on('submit(comment)', function(data){
+            $.ajax({
+                url:'${ctxFront}/comment',
+                type:'post',
+                dataType:'json',
+                data:data.field,
+                beforeSend:function(){ //触发ajax请求开始时执行
+                    $("#submitComment").attr("disabled","true"); //改变提交按钮上的文字并将按钮设置为不可点击
+                },
+                success:function(result){
+                    console.log(result);
+                    if (result.code != 0 || result.code != '0') {
+                        layer.msg(result.msg,{time: 500}, function(){
+                            $("#submitComment").removeAttr("disabled"); //改变提交按钮上的文字并将按钮设置为可点击
+                        });
+                    } else {
+                        layer.msg(result.msg,{time: 500},function () {
+							window.location.reload();
+                        });
+                    }
+                },
+                error:function(){
+                    layer.msg("提交回复失败!",{time: 1000}, function(){
+                        $("#submitComment").removeAttr("disabled"); //改变提交按钮上的文字并将按钮设置为可点击
+                    });
+                }
+            });
+            return false;
+        });
+    })
+</script>
+<%}%>

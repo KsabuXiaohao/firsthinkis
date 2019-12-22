@@ -1,0 +1,65 @@
+<% layout("/modules/cms/front/themes/default/common/layout.html",{nav:'share'}){ %>
+
+<div class="layui-container fly-main" style="padding-top: 15px;">
+
+    <div class="layui-row layui-col-space15">
+        <div id="article-list" class="layui-col-md8">
+            <%if(category.module == 'article'){%>
+            <%for(article in page.list){%>
+            <div class="layui-collapse layui-panel layui-article animated fadeInUp">
+                <div class="layui-colla-item">
+                    <div class="layui-colla-content layui-show layui-article">
+                        <fieldset class="layui-elem-field layui-field-title">
+                            <legend class="center-to-head">
+                                <span class="layui-badge layui-bg-green">${article.category.name}</span>
+                                <%if(isNotEmpty(article.keywords)){%>
+                                <span class="layui-badge layui-bg-cyan">${article.keywords}</span>
+                                <%}%>
+                                <a href="${article.url}" title="${article.title}">${article.title}</a>
+                            </legend>
+                            <div class="layui-field-box has-pic layui-hide-xs">
+                                <div class="layui-row layui-col-space10">
+                                    <div class="layui-col-lg10 layui-col-md10 layui-col-sm10 layui-col-xs12">
+                                        ${article.description}
+                                        <a class="loading" href="${article.url}">更多<i class="fa fa-angle-double-right"></i> </a>
+                                    </div>
+                                    <div class="layui-col-lg2 layui-col-md2 layui-col-sm2">
+                                        <img src="${article.image}" class="panel-pic">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="operation">
+                                <%if(isNotEmpty(article.keywords)){%>
+                                <div class="tags">
+                                    <span class="layui-badge-rim" onclick=""><i class="layui-icon">&#xe66e;</i>${article.keywords}</span>
+                                </div>
+                                <%}%>
+                                <div class="info">
+                                    <span class="views"><i class="iconfont" title="人气">&#xe60b;</i> ${article.hits}</span>
+                                    <span class="datetime"><i class="layui-icon icon-shijian"></i> ${article.updateDate,dateFormat="yyyy-MM-dd "}</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <%}elsefor{%>
+            <div>暂无数据</div>
+            <%}%>
+            <%}%>
+            <div class="pagination" style="background-color:white;margin-top: 10px;">${page}</div>
+            <script type="text/javascript">
+                function page(n,s){
+                    location="${ctxFront}/list-${category.id}${@Global.getUrlSuffix()}?pageNo="+n+"&pageSize="+s;
+                }
+            </script>
+        </div>
+        <div class="layui-col-md4 layui-hide-xs">
+            <#frontArticleHitsTop category="${category}" panelTitle="推荐阅读"/>
+            <#images/>
+            <#links panelTitle="友情链接" siteId="${category.site.id}" categoryId="1011"/>
+            <#ad/>
+        </div>
+    </div>
+</div>
+<%}%>

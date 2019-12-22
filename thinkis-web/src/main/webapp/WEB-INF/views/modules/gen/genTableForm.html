@@ -1,0 +1,198 @@
+<% layout("/layouts/micro.html"){ %>
+	<div class="layui-tab layui-tab-brief childrenBody">
+      <ul class="layui-tab-title">
+       	<li><a href="${ctx}/gen/genTable/">业务表列表</a></li>
+		<li class="layui-this">
+			<a href="${ctx}/gen/genTable/form?id=${genTable.id}&name=${genTable.name}">业务表<%if(shiro.hasPermission("gen:genTable:edit")){%>${isNotEmpty(genTable.id)?'修改':'添加'}<%}%><%if(shiro.lacksPermission("gen:genTable:edit")){%>查看<%}%></a></li>
+	</ul>
+    <div class="layui-tab-content">
+		<%if(isEmpty(genTable.name)){%>
+		<form  action="${ctx}/gen/genTable/form" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${genTable.id}"/>
+			<#message content="${message!}"/>
+			<br/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">表名:</label>
+				<div class="layui-input-inline">
+					<select name="name" lay-search>
+						<%for(item in tableList){%>
+							<option value="${item.name}">${item.nameAndComments}</option>
+						<%}%>
+					</select>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-filter="*" lay-submit>下一步</button>
+					<button type="reset" class="layui-btn layui-btn-primary" onclick="history.go(-1)">返回</button>
+				</div>
+			</div>
+		</form>
+		<%}else{%>
+		<form  action="${ctx}/gen/genTable/save" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${genTable.id}" />
+			<#message content="${message!}"/>
+			<fieldset class="layui-elem-field layui-field-title" style="margin-top: 5px;">
+				<legend>基本信息</legend>
+			</fieldset>
+			<div class="layui-row layui-col-space15 layui-form-item">
+				<div class="layui-col-md4">
+					<label class="layui-form-label">表名:</label>
+					<div class="layui-input-block">
+						<input type="text" name="name" value="${genTable.name}" htmlEscape="false" maxlength="200" class="layui-input" lay-verify="required" readonly="true"/>
+					</div>
+				</div>
+				<div class="layui-col-md4">
+					<label class="layui-form-label">说明:</label>
+					<div class="layui-input-block">
+						<input type="text" name="comments" value="${genTable.comments}" htmlEscape="false" maxlength="200" class="layui-input" lay-verify="required"/>
+					</div>
+				</div>
+				<div class="layui-col-md4">
+					<label class="layui-form-label">类名:</label>
+					<div class="layui-input-block">
+						<input type="text" name="className" value="${genTable.className}" htmlEscape="false" maxlength="200" class="layui-input" lay-verify="required"/>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-row layui-col-space15 layui-form-item">
+				<div class="layui-col-md6">
+					<label class="layui-form-label">父表表名:</label>
+					<div class="layui-input-inline">
+						<select name="parentTable" cssClass="input-xlarge">
+							<option value="">无</option>
+							<%for(item in tableList){%>
+							<option value="${item.name}">${item.nameAndComments}</option>
+							<%}%>
+						</select>
+					</div>
+				</div>
+				<div class="layui-col-md6">
+					<div class="layui-form-mid ">当前表外键：</div>
+					<div class="layui-input-inline">
+						<select path="parentTableFk" cssClass="input-xlarge">
+							<option value="">无</option>
+							<%for(item in genTable.columnList){%>
+							<option value="${item.name}">${item.nameAndComments}</option>
+							<%}%>
+						</select>
+					</div>
+					<div class="layui-form-mid layui-word-aux">如果有父表，请指定父表表名和外键</div>
+				</div>
+			</div>
+
+			<div class="layui-form-item layui-form-text">
+				<label class="layui-form-label">备注:</label>
+				<div class="layui-input-block">
+					<textarea name="remarks" htmlEscape="false" rows="2" class="layui-textarea">${genTable.remarks}</textarea>
+				</div>
+			</div>
+			<fieldset class="layui-elem-field layui-field-title" style="margin-top: 5px;">
+				<legend>字段列表</legend>
+			</fieldset>
+			<div class="layui-form-item">
+				<table class="layui-table" >
+					<thead><tr><th title="数据库字段名">列名</th><th title="默认读取数据库字段备注">说明</th><th title="数据库中设置的字段类型及长度">物理类型</th><th title="实体对象的属性字段类型">Java类型</th>
+						<th title="实体对象的属性字段（对象名.属性名|属性名2|属性名3，例如：用户user.id|name|loginName，属性名2和属性名3为Join时关联查询的字段）">Java属性名称 <i class="icon-question-sign"></i></th>
+						<th title="是否是数据库主键">主键</th><th title="字段是否可为空值，不可为空字段自动进行空值验证">可空</th><th title="选中后该字段被加入到insert语句里">插入</th>
+						<th title="选中后该字段被加入到update语句里">编辑</th><th title="选中后该字段被加入到查询列表里">列表</th>
+						<th title="选中后该字段被加入到查询条件里">查询</th><th title="该字段为查询字段时的查询匹配放松">查询匹配方式</th>
+						<th title="字段在表单中显示的类型">显示表单类型</th><th title="显示表单类型设置为“下拉框、复选框、点选框”时，需设置字典的类型">字典类型</th><th>排序</th></tr></thead>
+					<tbody>
+					<%for(column in genTable.columnList){%>
+						<tr${column.delFlag == '1'?' class="error" title="已删除的列，保存之后消失！"':''}>
+						<td nowrap>
+							<input type="hidden" name="columnList[${columnLP.index-1}].id" value="${column.id}"/>
+							<input type="hidden" name="columnList[${columnLP.index-1}].delFlag" value="${column.delFlag}"/>
+							<input type="hidden" name="columnList[${columnLP.index-1}].genTable.id" value="${column.genTable.id!}"/>
+							<input type="hidden" name="columnList[${columnLP.index-1}].name" value="${column.name}"/>${column.name}
+						</td>
+						<td>
+							<input name="columnList[${columnLP.index-1}].comments" value="${column.comments}" maxlength="200" class="layui-input" lay-verify="required" style="width:100px;"/>
+						</td>
+						<td nowrap>
+							<input type="hidden" name="columnList[${columnLP.index-1}].jdbcType" value="${column.jdbcType}"/>${column.jdbcType}
+						</td>
+						<td>
+							<select name="columnList[${columnLP.index-1}].javaType" class="required input-mini" style="width:85px;*width:75px">
+								<#options items="${config.javaTypeList}" value="${column.javaType}"/>
+							</select>
+						</td>
+						<td>
+							<input name="columnList[${columnLP.index-1}].javaField" value="${column.javaField}" maxlength="200"  lay-verify="required" class="layui-input"/>
+						</td>
+						<td>
+							<input type="checkbox" name="columnList[${columnLP.index-1}].isPk" lay-skin="primary" lay-filter="*" value="1" ${column.isPk == '1' ? 'checked' : ''}/>
+						</td>
+						<td>
+							<input type="checkbox" name="columnList[${columnLP.index-1}].isNull" lay-skin="primary" lay-filter="*" value="1" ${column.isNull == '1' ? 'checked' : ''}/>
+						</td>
+						<td>
+							<input type="checkbox" name="columnList[${columnLP.index-1}].isInsert" lay-skin="primary" lay-filter="*" value="1" ${column.isInsert == '1' ? 'checked' : ''}/>
+						</td>
+						<td>
+							<input type="checkbox" name="columnList[${columnLP.index-1}].isEdit" lay-skin="primary" lay-filter="*" value="1" ${column.isEdit == '1' ? 'checked' : ''}/>
+						</td>
+						<td>
+							<input type="checkbox" name="columnList[${columnLP.index-1}].isList" lay-skin="primary" lay-filter="*" value="1" ${column.isList == '1' ? 'checked' : ''}/>
+						</td>
+						<td>
+							<input type="checkbox" name="columnList[${columnLP.index-1}].isQuery" lay-skin="primary" lay-filter="*" value="1" ${column.isQuery == '1' ? 'checked' : ''}/>
+						</td>
+						<td>
+							<select name="columnList[${columnLP.index-1}].queryType" class="required input-mini">
+								<#options items="${config.queryTypeList}" value="${column.queryType}"/>
+							</select>
+						</td>
+						<td>
+							<select name="columnList[${columnLP.index-1}].showType" class="required" style="width:100px;">
+								<#options items="${config.showTypeList}" value="${column.showType}"/>
+							</select>
+						</td>
+						<td>
+							<input class="layui-input" name="columnList[${columnLP.index-1}].dictType" value="${column.dictType}" maxlength="200" />
+						</td>
+						<td>
+							<input class="layui-input" name="columnList[${columnLP.index-1}].sort" value="${column.sort}" lay-verify="required" maxlength="200" />
+						</td>
+						</tr>
+					<%}%>
+					</tbody>
+				</table>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<%if(shiro.hasPermission("gen:genTable:edit")){%>
+						<button class="layui-btn" lay-filter="saveGenTable" lay-submit>保存</button>
+					<%}%>
+					<button type="reset" class="layui-btn layui-btn-primary" onclick="history.go(-1)">返回</button>
+				</div>
+			</div>
+		</form>
+		<%}%>
+	</div>
+</div>
+<script>
+    layui.use(['form','jquery'],function(){
+        var $ = layui.jquery, form = layui.form;
+        form.on('checkbox(*)', function(data){
+            if(data.elem.checked){
+                $(this).val(1);
+                $(this).attr("checked",true);
+                form.render('checkbox');
+            }else{
+                $(this).val(0);
+                $(this).attr("checked",false);
+                form.render('checkbox');
+            }
+        });
+        form.on('submit(saveGenTable)', function(data){
+            $("input[type=checkbox]").each(function(){
+                $(this).after("<input type=\"hidden\" name=\""+$(this).attr("name")+"\" value=\"" +($(this).attr("checked")?"1":"0")+"\"/>");
+                $(this).attr("name", "_"+$(this).attr("name"));
+            });
+        });
+    });
+</script>
+<%}%>

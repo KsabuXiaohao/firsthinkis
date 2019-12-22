@@ -1,0 +1,33 @@
+<% layout("/modules/cms/front/themes/fly/common/layout.html",{nav:'fly'}){ %>
+<%
+var siteId = site.id;
+var categoryId ="1003";
+include("/modules/cms/front/themes/fly/common/column.html",{siteId:siteId,categoryId:categoryId,currentId:''}){}
+%>
+
+<div class="layui-container">
+  <div class="layui-row layui-col-space15">
+    <div class="layui-col-md8">
+      <#topPosts siteId="${site.id}" categoryId="1003"/>
+      <div class="fly-panel" style="margin-bottom: 0;">
+        <% include("/modules/cms/front/themes/fly/common/filter.html"){} %>
+        <#pagePosts siteId="${site.id}" categoryId="1003"/>
+        <div style="text-align: center">
+          <div class="laypage-main">
+            <a href="${ctxFront}/list-1004${@Global.getUrlSuffix()}" class="laypage-next">更多求解</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="layui-col-md4">
+
+      <#hotPosts siteId="${site.id}"/>
+      <#images/>
+      <#links panelTitle="友情链接" siteId="${site.id}" categoryId="1011"/>
+      <#ad/>
+
+    </div>
+  </div>
+</div>
+
+<%}%>

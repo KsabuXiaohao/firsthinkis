@@ -1,0 +1,73 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li><a href="${ctx}/act/task/todo/">待办任务</a></li>
+		<li><a href="${ctx}/act/task/historic/">已办任务</a></li>
+		<li class="layui-this"><a href="${ctx}/act/task/process/">新建任务</a></li>
+	</ul>
+	<div class="layui-tab-content">
+	<form id="searchForm" action="${ctx}/act/task/process/" method="post" class="layui-form">
+		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+		<div class="layui-input-inline">
+			<label class="layui-form-label">全部分类</label>
+			<div class="layui-input-inline">
+				<select id="category" name="category" class="input-medium">
+					<option value="">全部分类</option>
+					<#options items="${@DictUtils.getDictList('act_category')}" value="${category}"/>
+				</select>
+			</div>
+		</div>
+		
+		<div class="layui-input-inline">
+              <button class="layui-btn  layui-btn-sm" lay-filter="*" lay-submit>查询</button>
+        </div>
+	</form>
+	<#message content="${message!}"/>
+	<table class="layui-table" >
+		<thead>
+			<tr>
+				<th style="text-align:center">流程分类</th>
+				<th style="text-align:center">流程标识</th>
+				<th style="text-align:center">流程名称</th>
+				<th style="text-align:center">流程图</th>
+				<th style="text-align:center">流程版本</th>
+				<th style="text-align:center">更新时间</th>
+				<th style="text-align:center">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%for(object in page.list){
+				var process = object[0];
+				var deployment= object[1];
+			%>
+				<tr>
+					<td style="text-align:center">${@DictUtils.getDictLabel(process.category,'act_category','无分类')}</td>
+					<td style="text-align:center"><a href="${ctx}/act/task/form?procDefId=${process.id}">${process.key}</a></td>
+					<td style="text-align:center">${process.name}</td>
+					<td style="text-align:center"><a target="_blank" href="${ctxPath}/act/diagram-viewer?processDefinitionId=${process.id}">${process.diagramResourceName}</a></td>
+					<td style="text-align:center"><b title='流程版本号'>V: ${process.version}</b></td>
+					<td style="text-align:center">${deployment.deploymentTime,dateFormat="yyyy-MM-dd HH:mm:ss"}</td>
+					<td style="text-align:center">
+						<a class="layui-btn layui-btn-sm" href="${ctx}/act/task/form?procDefId=${process.id}">启动流程</a>
+					</td>
+				</tr>
+			<%}%>
+		</tbody>
+	</table>
+	<div class="pagination">${page}</div>
+	</div>
+</div>
+<%}%>

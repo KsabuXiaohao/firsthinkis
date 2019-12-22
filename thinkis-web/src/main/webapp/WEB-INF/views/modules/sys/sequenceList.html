@@ -1,0 +1,168 @@
+<% layout("/layouts/micro.html",{title:"序列键管理"}){ %>
+<div class="childrenBody" style="overflow-y: hidden;">
+	<div class="kit-table">
+		<form class="layui-form" lay-filter="kit-search-form">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("sys:sequence:edit")){%>
+					<a class="layui-btn layui-btn-normal addsequence_btn"><i class="layui-icon">&#xe608;</i>新增</a>
+					<a class="layui-btn layui-btn-danger layui-btn-normal delAll_btn"><i class="layui-icon">&#xe640;</i>批量删除</a>
+					<%}%>
+				</div>
+				<!--<div class="kit-search-inputs clearfix">-->
+					<!--<div class="kit-search-keyword">-->
+						<!--<input type="text" class="layui-input" id="keyword" name="keyword" placeholder="键值名称" />-->
+						<!--<button class="search_btn" type="button"><i class="layui-icon">&#xe615;</i></button>-->
+					<!--</div>-->
+				<!--</div>-->
+			</div>
+		</form>
+		<div class="kit-table-body">
+
+			<table id="sequenceList" lay-filter="sequenceList"></table>
+
+			<!--操作-->
+			<script type="text/html" id="sequenceListBar">
+				<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+				<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+			</script>
+
+		</div>
+	</div>
+</div>
+
+<script>
+    layui.use(['form','layer','laydate','table','laytpl'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery,
+            laydate = layui.laydate,
+            laytpl = layui.laytpl,
+            table = layui.table;
+
+        //列表
+        var tableIns = table.render({
+            elem: '#sequenceList',
+            url : '${ctx}/sys/sequence/listAjax',
+            cellMinWidth : 90,
+            page : true,
+            request: {
+                pageName: 'pageNo', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            height : "full-70",
+            limit : 15,
+            limits : [10,15,20,25],
+            id : "sequenceListTable",
+            cols : [[
+                {type: "checkbox", fixed:"left"},
+                {field:'name', title: '键值名称',width:300},
+                {field:'currentValue', title: '初始值',width:80},
+                {field:'incrementValue', title: '键值递增',width:90},
+                {field:'uuidTypeLabel', title: '键值类型',width:120},
+                {field:'keyLenTypeLabel', title: '长度类型',width:90},
+                {field:'keyLen', title: '序列键长度'},
+                {field:'keyFixTypeLabel', title: '修饰类型',width:90},
+                {field:'keyFix', title: '序列键修饰'},
+                {field:'keyDateTypeLabel', title: '序列日期',width:90},
+                {field:'keyDateLoopLabel', title: '按日期循环增加'},
+                {field:'keyDateLoopInit', title: '循环初值',width:90},
+                {field:'keyDateFormatLabel', title: '日期序列',width:150},
+                {field:'example', title: '示例'},
+                {field:'keyDate', title: '上次序列开始时间',width:180},
+            <%if(shiro.hasPermission("sys:sequence:edit")){%>
+            {title: '操作', width:130, templet:'#sequenceListBar',fixed:"right",align:"left"}
+        <%}%>
+    ]]
+    });
+
+        //搜索
+        $(".search_btn").on("click",function(){
+            var keyword = $('#keyword');
+            table.reload("sequenceListTable",{
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                },
+                where: {
+                    keyword : keyword.val(),
+                }
+            })
+        });
+        //添加
+        function addsequence(id){
+            var index = layui.layer.open({
+				title : "添加序列键",
+				type : 2,
+				maxmin:true,
+				content : "${ctx}/sys/sequence/form?id="+id,
+				area: ['50%', '85%'],
+                <%if(shiro.hasPermission("sys:sequence:edit")){%>
+                btn: ['保存', '取消'],
+                    yes: function(index, layero) {
+                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                    iframeWin.saveForm();
+                },
+                end:function(){
+                    tableIns.reload();
+                }
+            	<%}%>
+        })
+        }
+        $(".addsequence_btn").click(function(){
+            var id = '${sequence.id}';
+            addsequence(id);
+        })
+
+
+        //批量删除
+        $(".delAll_btn").click(function(){
+            var checkStatus = table.checkStatus('sequenceListTable'),
+                data = checkStatus.data,
+                selectedIds = [];
+            if(data.length > 0) {
+                for (var i in data) {
+                    selectedIds.push(data[i].name);
+                }
+                layer.confirm('确定删除选中的数据？', {icon: 3, title: '提示信息'}, function (index) {
+                    $.post("${ctx}/sys/sequence/batchDelete",{selectedIds:selectedIds.join(",")},function(result){
+                        if(result.code=="0"){
+                            layer.msg("删除成功");
+                        }else{
+                            layer.msg("删除失败");
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                })
+            }else{
+                layer.msg("请选择需要删除的数据");
+            }
+        })
+
+        //列表操作
+        table.on('tool(sequenceList)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data;
+
+            if(layEvent === 'edit'){ //编辑
+                addsequence(data.name);
+            } else if(layEvent === 'del'){ //删除
+                layer.confirm('确定删除选中数据？',{icon:3, title:'提示信息'},function(index){
+                    $.post("${ctx}/sys/sequence/delete",{id:data.name},function(result){
+                        if(result.code=="0"){
+                            layer.msg("删除成功");
+                        }else{
+                            layer.msg("删除失败");
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                });
+            } else if(layEvent === 'look'){ //预览
+                layer.alert("此功能需要前台展示，实际开发中传入对应的必要参数进行文章内容页面访问")
+            }
+        });
+
+    })
+</script>
+<%}%>

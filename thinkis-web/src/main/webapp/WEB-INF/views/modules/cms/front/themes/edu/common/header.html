@@ -1,0 +1,59 @@
+<div class="fly-header layui-bg-black">
+	<div class="layui-container">
+		<% if(isNotEmpty(site.logo)){ %>
+		<a class="fly-logo" href="${ctxFront}">
+			<img alt="${site.title}" src="${site.logo}" style="height: 43px;" class="container">
+		</a>
+		<% }else{ %>
+		<a class="fly-logo" style="color: #fff;font-size: 25px;" href="${ctxFront}">${site.title}</a>
+		<% } %>
+		<ul class="layui-nav fly-nav" lay-filter="">
+			<li class="layui-nav-item layui-hide-xs <%if(currentNav == 'index'){%>layui-this<%}%>"><a href="${ctxFront}">首页</a></li>
+			<!--查询一级栏目列表-->
+			<%
+			var categorys = @CmsUtils.getSubMainNavList(site.id,'1002');
+			for(category in categorys){
+			%>
+			<li class="layui-nav-item layui-hide-xs <%if(currentNav == category.id){%>layui-this<%}%>"><a href="${category.url}">${category.name}</a></li>
+			<%}%>
+
+			<li class="layui-nav-item layui-hide-lg layui-hide-md layui-hide-sm">
+				<a href="javascript:;">导航</a>
+				<dl class="layui-nav-child">
+					<%
+					var categorys2 = @CmsUtils.getSubMainNavList(site.id,'1002');
+					for(category in categorys2){
+					%>
+					<dd class="layui-this"><a href="${category.url}" style="padding-left:10px;">${category.name}</a></dd>
+					<%}%>
+				</dl>
+			</li>
+			<% var user = @UserUtils.getUser(); if(isEmpty(user.id)){%>
+			<!-- 未登入的状态 -->
+			<li class="layui-nav-item layui-hide-lg layui-hide-md layui-hide-sm">
+				<a class="iconfont icon-touxiang " href="${ctxFront}/login-${site.id}.html"></a>
+			</li>
+			<li class="layui-nav-item layui-hide-xs">
+				<a class="iconfont icon-touxiang layui-hide-xs" style="font-size: 30px;" href="${ctxFront}/login-${site.id}.html"></a>
+			</li>
+			<% }else{ %>
+			<!-- 登入后的状态 -->
+			<li class="layui-nav-item">
+				<a class="fly-nav-avatar" href="javascript:;">
+					<% if(isEmpty(user.photo)){ %>
+					<img src="${ctxPath}/static/images/default.png">
+					<% }else{ %>
+					<img src="${user.photo}">
+					<% } %>
+					<cite class="layui-hide-xs">&nbsp;${user.name}</cite>
+				</a>
+				<dl class="layui-nav-child">
+					<dd><a href="${ctxFront}/set-${site.id}.html" style="text-align: center;">我的资料</a></dd>
+					<hr style="margin: 5px 0;">
+					<dd><a href="${ctx}/logout" style="text-align: center;">退出</a></dd>
+				</dl>
+			</li>
+			<% } %>
+		</ul>
+	</div>
+</div>

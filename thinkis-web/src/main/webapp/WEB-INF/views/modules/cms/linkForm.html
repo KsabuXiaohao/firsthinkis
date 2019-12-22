@@ -1,0 +1,147 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm" action="${ctx}/cms/link/save" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${link.id}"/>
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md8">
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="red">*</font>归属栏目</label>
+								<div class="layui-input-block">
+									<#treeselect id="category" name="category.id" value="${link.category.id!}" labelName="category.name" labelValue="${link.category.name!}"
+									title="栏目" url="/cms/category/treeData" module="link" selectScopeModule="true" notAllowSelectRoot="false" notAllowSelectParent="true" cssClass="required"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="red">*</font>名称</label>
+								<div class="layui-input-block">
+									<input type="text" name="title" value="${link.title}" htmlEscape="false" maxlength="200" class="layui-input measure-input" lay-verify="required"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">颜色</label>
+								<div class="layui-input-block">
+									<select name="color" class="input-mini">
+										<option value="" label="默认"/>
+										<#options items="${@DictUtils.getDictList('color')}" value="${link.color}" />
+									</select>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">链接地址</label>
+								<div class="layui-input-block">
+									<input type="text" name="href" value="${link.href}" htmlEscape="false" maxlength="255" class="layui-input"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">权重</label>
+								<div class="layui-input-inline">
+									<input id="weight" type="text" name="weight" value="${link.weight}" htmlEscape="false" maxlength="200" class="layui-input digits" lay-verify="required"/>&nbsp;
+								</div>
+
+								<div class="layui-inline">
+									<label for="weightTop" class="layui-form-label" >置顶</label>
+									<div class="layui-input-inline">
+									<input lay-skin="primary"  id="weightTop" type="checkbox" lay-filter="weightTop">
+									</div>
+									<script type="text/javascript">
+										layui.use(['form'],function(){
+											var form  = layui.form;
+											form.on('checkbox(weightTop)', function(data){
+												$('#weight').val(this.checked?'999':'0')
+											});
+										})
+									</script>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">过期时间</label>
+								<div class="layui-input-block">
+									<input id="weightDate" name="weightDate" type="text" placeholder="数值越大排序越靠前，过期时间可为空，过期后取消置顶" readonly="readonly" maxlength="20" class="layui-input"
+										   value="${link.weightDate!,dateFormat='yyyy-MM-dd'}"/>
+									<script>
+										layui.use(['form','laydate'], function() {
+											var form = layui.form, laydate = layui.laydate;
+											laydate.render({
+												elem: "#weightDate",
+												value: '${link.weightDate,dateFormat="yyyy-MM-dd"}'
+											});
+										})
+									</script>
+								</div>
+
+							</div>
+							<%if(shiro.hasPermission("cms:article:audit")){%>
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">状态</label>
+								<div class="layui-input-block">
+									<#radio name="delFlag" items="${@DictUtils.getDictList('cms_del_flag')}" value="${link.delFlag}"/>
+								</div>
+							</div>
+							<%}%>
+
+							<div class="layui-form-item layui-form-text">
+								<label class="layui-form-label">备注</label>
+								<div class="layui-input-block">
+									<textarea name="remarks" htmlEscape="false" rows="4" maxlength="200" class="layui-textarea">${link.remarks}</textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-md4">
+					<div class="layui-card">
+						<div class="layui-card-header">链接图片</div>
+						<div class="layui-card-body">
+							<#imageUpload id="image" name="image" value="${link.image!}" cssClass="" desc="上传链接图片，类型为jpg或png，图片尺寸为100X100，最大允许上传1M。" size="1024"   required="false"/>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block" style="display: none;">
+					<%if(shiro.hasPermission("cms:category:edit")){%>
+					<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+					<%}%>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    top.layer.close(index);
+                    top.layer.msg(result.msg);
+                    layer.closeAll("iframe");
+                    //刷新父页面
+                    parent.location.reload();
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

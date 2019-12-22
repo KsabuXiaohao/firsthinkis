@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.wx.dao.WxAccountMenuDao">
+    
+	<sql id="wxAccountMenuColumns">
+		a.id AS "id",
+		a.event_key AS "eventKey",
+		a.name AS "name",
+		a.parent_id AS "parent.id",
+		a.parent_ids AS "parentIds",
+		a.sort AS "sort",
+		a.type AS "type",
+		a.oauth AS "oauth",
+		a.view_url AS "viewUrl",
+		a.group_id AS "groupId",
+		a.msg_id AS "msgId",
+		a.update_date AS "updateDate",
+		a.create_date AS "createDate"
+	</sql>
+	
+	<sql id="wxAccountMenuJoins">
+	</sql>
+    
+	<select id="get" resultType="WxAccountMenu">
+		SELECT 
+			<include refid="wxAccountMenuColumns"/>
+		FROM wx_account_menu a
+		<include refid="wxAccountMenuJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxAccountMenu">
+		SELECT 
+			<include refid="wxAccountMenuColumns"/>
+		FROM wx_account_menu a
+		<include refid="wxAccountMenuJoins"/>
+		<where>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="pubid != null and pubid != ''">
+				AND a.pubid = #{pubid}
+			</if>
+			<if test="parent != null and parent.id != null and parent.id != ''">
+				AND a.parent_id = #{parent.id}
+			</if>
+			<if test="parentIds != null and parentIds != ''">
+				AND a.parent_ids LIKE 
+					<if test="dbName == 'oracle'">'%'||#{parentIds}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{parentIds}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{parentIds},'%')</if>
+			</if>
+			<if test="keyword != null and keyword != ''">
+				AND a.name LIKE concat('%',#{keyword},'%')
+			</if>
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findAllList" resultType="WxAccountMenu">
+		SELECT 
+			<include refid="wxAccountMenuColumns"/>
+		FROM wx_account_menu a
+		<include refid="wxAccountMenuJoins"/>
+		<where>
+			
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findByParentIdsLike" resultType="WxAccountMenu">
+		SELECT
+			a.id,
+			a.parent_id AS "parent.id",
+			a.parent_ids
+		FROM wx_account_menu a
+		<include refid="wxAccountMenuJoins"/>
+		<where>
+			
+			AND a.parent_ids LIKE #{parentIds}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wx_account_menu(
+			id,
+			event_key,
+			name,
+			parent_id,
+			parent_ids,
+			sort,
+			type,
+			oauth,
+			view_url,
+			group_id,
+			msg_id,
+			update_date,
+			create_date
+		) VALUES (
+			#{id},
+			#{eventKey},
+			#{name},
+			#{parent.id},
+			#{parentIds},
+			#{sort},
+			#{type},
+			#{oauth},
+			#{viewUrl},
+			#{groupId},
+			#{msgId},
+			#{updateDate},
+			#{createDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wx_account_menu SET 	
+			event_key = #{eventKey},
+			name = #{name},
+			parent_id = #{parent.id},
+			parent_ids = #{parentIds},
+			sort = #{sort},
+			type = #{type},
+			oauth = #{oauth},
+			view_url = #{viewUrl},
+			group_id = #{groupId},
+			msg_id = #{msgId},
+			update_date = #{updateDate}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateParentIds">
+		UPDATE wx_account_menu SET 
+			parent_id = #{parent.id}, 
+			parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM wx_account_menu
+		WHERE id = #{id} OR parent_ids LIKE 
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{id}+',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+	</update>
+	
+</mapper>

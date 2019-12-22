@@ -1,0 +1,103 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<%if(shiro.hasPermission("admin:map")){%>
+<div class="childrenBody">
+    <div class="layui-tab-content">
+        <form id="inputForm" action="${ctx}/telecom/device/import" method="post" enctype="multipart/form-data"
+              class="layui-form" style="padding-left:20px;text-align:center;" onsubmit="layer.load(0, {shade: false});"><br/>
+            <div class="layui-form-item">
+                <label class="layui-form-label">选择机构</label>
+                <div class="layui-input-inline">
+                    <select name="companyid" lay-verify="required" lay-search="">
+                        <option value="">直接选择或者输入查找</option>
+                        <%for(office in offices){%>
+                        <option value="${office.id}">${office.name}</option>
+                        <%}%>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <input id="uploadFile" name="file" type="file" style="width:330px"/><br/><br/>　
+                <button class="layui-btn" type="submit" style="display: none;" lay-filter="addData" lay-submit>导入</button>　
+                <a class="layui-btn layui-btn-primary" href="${ctx}/telecom/device/import/template">下载模板</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = new FormData($('#inputForm')[0]);
+            // var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(result){
+                    setTimeout(function () {
+                        top.layer.msg(result.msg);
+                        parent.layer.closeAll();
+                    }, 300);
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+
+</script>
+<%} else if(shiro.hasPermission("user:map")){%>
+<div class="childrenBody">
+    <div class="layui-tab-content">
+        <form id="inputForm" action="${ctx}/telecom/device/import" method="post" enctype="multipart/form-data"
+              class="layui-form" style="padding-left:20px;text-align:center;" onsubmit="layer.load(0, {shade: false});"><br/>
+            <div class="layui-form-item">
+                <input id="uploadFile" name="file" type="file" style="width:330px"/><br/><br/>　
+                <button class="layui-btn" type="submit" style="display: none;" lay-filter="addData" lay-submit>导入</button>　
+                <a class="layui-btn layui-btn-primary" href="${ctx}/telecom/device/import/template">下载模板</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = new FormData($('#inputForm')[0]);
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success:function(result){
+                    setTimeout(function () {
+                        top.layer.msg(result.msg);
+                        parent.layer.closeAll();
+                    }, 300);
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+
+</script>
+<%}%>
+<%}%>

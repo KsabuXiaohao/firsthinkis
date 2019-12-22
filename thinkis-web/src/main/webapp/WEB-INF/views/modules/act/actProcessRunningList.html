@@ -1,0 +1,97 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    $(document).ready(function(){
+        top.$.jBox.tip.mess = null;
+    });
+    /* function page(n,s){
+        location = '${ctx}/act/process/running/?pageNo='+n+'&pageSize='+s;
+    } */
+    function updateCategory(id, category){
+        $.jBox($("#categoryBox").html(), {title:"设置分类", buttons:{"关闭":true}, submit: function(){}});
+        $("#categoryBoxId").val(id);
+        $("#categoryBoxCategory").val(category);
+    }
+
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+</script>
+<script type="text/template" id="categoryBox">
+	<form id="categoryForm" action="${ctx}/act/process/updateCategory" method="post" enctype="multipart/form-data"
+		  style="text-align:center;" class="form-search" onsubmit="loading('正在设置，请稍等...');"><br/>
+		<input id="categoryBoxId" type="hidden" name="procDefId" value="" />
+		<select id="categoryBoxCategory" name="category">
+			<#options items="${@DictUtils.getDictList('act_category')}" value=""/>
+		</select>
+		<br/><br/>　　
+		<input id="categorySubmit" class="btn btn-primary" type="submit" value="保存"/>　　
+	</form>
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li><a href="${ctx}/act/process/">流程管理</a></li>
+		<li><a href="${ctx}/act/process/deploy/">部署流程</a></li>
+		<li class="layui-this"><a href="${ctx}/act/process/running/">运行中的流程</a></li>
+	</ul>
+	<div class="layui-tab-content">
+	<form id="searchForm" action="${ctx}/act/process/running/" method="post" class="layui-form">
+		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+		<div class="layui-input-inline">
+			<label class="layui-form-label">流程实例ID：</label>
+			<div class="layui-input-inline">
+				<input type="text" id="procInsId" name="procInsId" value="${procInsId}" class="layui-input"/>
+			</div>
+		</div>
+
+		<div class="layui-input-inline">
+			<label class="layui-form-label" style="width: 90px">流程定义Key：</label>
+			<div class="layui-input-inline">
+				<input type="text" id="procDefKey" name="procDefKey" value="${procDefKey}" class="layui-input"/>
+			</div>
+		</div>
+		
+		<div class="layui-input-inline">
+              <input id="btnSubmit" class="layui-btn layui-btn-sm" type="submit" value="查询"/>
+          	</div>
+	</form>
+	<#message content="${message!}"/>
+	<table class="layui-table" >
+		<thead>
+			<tr>
+				<th style="text-align:center">执行ID</th>
+				<th style="text-align:center">流程实例ID</th>
+				<th style="text-align:center">流程定义ID</th>
+				<th style="text-align:center">当前环节</th>
+				<th style="text-align:center">是否挂起</th>
+				<th style="text-align:center">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%for(procIns in page.list){%>
+				<tr>
+					<td>${procIns.id}</td>
+					<td>${procIns.processInstanceId}</td>
+					<td>${procIns.processDefinitionId}</td>
+					<td>${procIns.activityId}</td>
+					<td>${procIns.suspended}</td>
+					<td>
+						<%if(shiro.hasPermission("act:process:edit")){%>
+							<a class="layui-btn layui-btn-danger layui-btn-xs" href="${ctx}/act/process/deleteProcIns?procInsId=${procIns.processInstanceId}&reason=" onclick="return promptx('删除流程','删除原因',this.href);">删除流程</a>
+						<%}%>
+					</td>
+				</tr>
+			<%}%>
+		</tbody>
+	</table>
+	<div class="pagination">${page}</div>
+	</div>
+</div>
+<%}%>

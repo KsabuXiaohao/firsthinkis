@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>controller</name>
+	<filePath>src/main/java/${packageName}/${moduleName}/web/${subModuleName}</filePath>
+	<fileName>${ClassName}Controller.java</fileName>
+	<content><![CDATA[
+/**
+ * Copyright &copy; 2018 thinkis All rights reserved.
+ */
+package ${packageName}.${moduleName}.web<#if subModuleName != "">.${subModuleName}</#if>;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.thinkis.common.persistence.Page;
+import com.thinkis.common.web.BaseController;
+import com.thinkis.common.web.Result;
+import com.thinkis.common.web.ResultGenerator;
+import com.thinkis.common.utils.StringUtils;
+import ${packageName}.${moduleName}.entity<#if subModuleName != "">.${subModuleName}</#if>.${ClassName};
+import ${packageName}.${moduleName}.service<#if subModuleName != "">.${subModuleName}</#if>.${ClassName}Service;
+
+/**
+ * ${functionName}Controller
+ * @author ${functionAuthor}
+ * @version ${functionVersion}
+ */
+@Controller
+@RequestMapping(value = "${r"${adminPath}"}/${urlPrefix}")
+public class ${ClassName}Controller extends BaseController {
+
+	@Autowired
+	private ${ClassName}Service ${className}Service;
+	
+	@ModelAttribute
+	public ${ClassName} get(@RequestParam(required=false) String id) {
+		${ClassName} entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = ${className}Service.get(id);
+		}
+		if (entity == null){
+			entity = new ${ClassName}();
+		}
+		return entity;
+	}
+	
+	@RequiresPermissions("${permissionPrefix}:view")
+	@RequestMapping(value = {"list", ""})
+	public String list(${ClassName} ${className}, HttpServletRequest request, HttpServletResponse response, Model model) {
+		model.addAttribute("${className}", ${className});
+		return "${lastPackageName}/${viewPrefix}List";
+	}
+
+	@RequiresPermissions("${permissionPrefix}:view")
+	@RequestMapping(value = "listAjax",method=RequestMethod.GET)
+	@ResponseBody
+	public Result listAjax(${ClassName} ${className},HttpServletRequest request, HttpServletResponse response) {
+		Page<${ClassName}> page = ${className}Service.findPage(new Page<${ClassName}>(request, response), ${className}); 
+		return ResultGenerator.genSuccessResult(page.getCount(),page.getList());
+	}
+
+	@RequiresPermissions("${permissionPrefix}:view")
+	@RequestMapping(value = "form")
+	public String form(${ClassName} ${className}, Model model) {
+		model.addAttribute("${className}", ${className});
+		return "${lastPackageName}/${viewPrefix}Form";
+	}
+	
+	@RequiresPermissions("${permissionPrefix}:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public Result save(${ClassName} ${className}) {
+		${className}Service.save(${className});
+		return ResultGenerator.genSuccessResult();
+	}
+	
+	@RequiresPermissions("${permissionPrefix}:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public Result delete(${ClassName} ${className}) {
+		${className}Service.delete(${className});
+		return ResultGenerator.genSuccessResult();
+	}
+	
+	@RequiresPermissions("${permissionPrefix}:edit")
+	@RequestMapping(value = "batchDelete")
+	@ResponseBody
+	public Result batchDelete(String selectedIds) {
+		int success = ${className}Service.batchDelete(selectedIds);
+		return ResultGenerator.genSuccessResult("成功删除"+success+"条数据");
+	}
+
+}]]>
+	</content>
+</template>

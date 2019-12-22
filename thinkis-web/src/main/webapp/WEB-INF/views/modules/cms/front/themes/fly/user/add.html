@@ -1,0 +1,100 @@
+<% layout("/modules/cms/front/themes/fly/common/layout.html",{nav:'fly'}){ %>
+
+<div class="layui-container fly-marginTop">
+  <div class="fly-panel" pad20 style="padding-top: 5px;">
+    <!--<div class="fly-none">没有权限</div>-->
+    <div class="layui-form layui-form-pane">
+      <div class="layui-tab layui-tab-brief" lay-filter="user">
+        <ul class="layui-tab-title">
+          <li class="layui-this">发表新帖<!-- 编辑帖子 --></li>
+        </ul>
+        <div class="layui-form layui-tab-content" id="LAY_ucm" style="padding: 20px 0;">
+          <div class="layui-tab-item layui-show">
+            <form action="${ctxFront}/save" method="post">
+              <div class="layui-row layui-col-space15 layui-form-item">
+                <div class="layui-col-md3">
+                  <label class="layui-form-label">所在专栏</label>
+                  <div class="layui-input-block">
+                    <select lay-verify="required" name="category.id" lay-filter="column">
+                      <option></option>
+                      <%
+                      var categorys = @CmsUtils.getCategoryList(site.id,'1003',5,"");
+                      for(var category in categorys){
+                      %>
+                      <option value="${category.id}">${category.name}</option>
+                      <%}%>
+                    </select>
+                  </div>
+                </div>
+                <div class="layui-col-md9">
+                  <label for="L_title" class="layui-form-label">标题</label>
+                  <div class="layui-input-block">
+                    <input type="text" id="L_title" name="title" required lay-verify="required" autocomplete="off" class="layui-input">
+                  </div>
+                </div>
+              </div>
+              <div class="layui-form-item layui-form-text">
+                <div class="layui-input-block">
+                  <textarea id="L_content" name="articleData.content" required lay-verify="required" placeholder="详细描述" class="layui-textarea fly-editor" style="height: 260px;"></textarea>
+                </div>
+              </div>
+              <!--<div class="layui-form-item">
+                <label for="L_vercode" class="layui-form-label">人类验证</label>
+                <div class="layui-input-inline">
+                  <input type="text" id="L_vercode" name="vercode" required lay-verify="required" placeholder="请回答后面的问题" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid">
+                  <span style="color: #c00;">1+1=?</span>
+                </div>
+              </div>-->
+              <div class="layui-form-item">
+                <button class="layui-btn" id="submitAdd" lay-filter="addArticle" lay-submit>立即发布</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    layui.cache.page ='jie';
+    layui.use(['form','fly','face'],function () {
+        var $ = layui.$,fly = layui.fly,face=layui.face;
+        //如果你是采用模版自带的编辑器，你需要开启以下语句来解析。
+        $('.detail-body').each(function () {
+            var othis = $(this), html = othis.html();
+            othis.html(fly.content(html));
+        });
+        var form = layui.form;
+        form.on('submit(addArticle)', function(data){
+            $.ajax({
+                url:'${ctxFront}/save',
+                type:'post',
+                dataType:'json',
+                data:data.field,
+                beforeSend:function(){ //触发ajax请求开始时执行
+                    $("#submitAdd").attr("disabled","true"); //改变提交按钮上的文字并将按钮设置为不可点击
+                },
+                success:function(result){
+                    if (result.code != 0 || result.code != '0') {
+                        layer.msg(result.msg,{time: 500}, function(){
+                            $("#submitAdd").removeAttr("disabled"); //改变提交按钮上的文字并将按钮设置为可点击
+                        });
+                    } else {
+                        layer.msg(result.msg,{time: 500},function () {
+                            window.location.href="${ctxFront}/index-fly.html";
+                        });
+                    }
+                },
+                error:function(){
+                    layer.msg("发帖失败!",{time: 1000}, function(){
+                        $("#submitAdd").removeAttr("disabled"); //改变提交按钮上的文字并将按钮设置为可点击
+                    });
+                }
+            });
+            return false;
+        });
+    })
+</script>
+<%}%>

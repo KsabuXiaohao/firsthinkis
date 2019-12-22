@@ -1,0 +1,131 @@
+<%
+var headerPart = {
+%>
+<!--引用百度地图API-->
+<style type="text/css">
+	html,body{margin:0;padding:0;}
+	.iw_poi_title {color:#CC5522;font-size:14px;font-weight:bold;overflow:hidden;padding-right:13px;white-space:nowrap}
+	.iw_poi_content {font:12px arial,sans-serif;overflow:visible;padding-top:4px;white-space:-moz-pre-wrap;word-wrap:break-word}
+	.layui-form-item .layui-input-inline{width: 220px;}
+	.join-nr{padding: 0 0 10px 0px}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?key=&v=1.1&services=true"></script>
+<% }; %>
+<% layout("/modules/cms/front/themes/edu/common/layout.html",{headerSection:headerPart,nav:article.category.id}){ %>
+<div class="ny-nav" id="kcsd">
+	<div class="centerbox ingfd clearfix">
+		<#frontCurrentPosition/>
+	</div>
+</div>
+<div class="message">
+	<form id="inputForm"  action="${ctxFront}/saveEnroll" method="post" class="layui-form">
+		<input type="hidden" name="status" value="0">
+		<div class="centerbox ingfd clearfix" style="background:none">
+			<div class="join-nr"><h5><span>学员信息</span></h5></div>
+			<div class="message-bz">
+				<b>注：如有不明确的内容请选择“其他”选项或咨询炫阳篮球俱乐部客服中心 0796-12345678</b>
+				<p>标注 <i>*</i> 为必填项</p>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><i style="color: red;">*</i>学员姓名：</label>
+				<div class="layui-input-inline">
+					<input name="name" value="" htmlEscape="false" maxlength="255" class="layui-input " lay-verify="required" />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><i style="color: red;">*</i>性别：</label>
+				<div class="layui-input-inline">
+					<#radio name="sex" value="0" items="${@DictUtils.getDictList('sex')}" />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><i style="color: red;">*</i>生日：</label>
+				<div class="layui-input-inline">
+					<input class="layui-input" id="birthday" name="birthday" placeholder="请选择生日" type="text" lay-verify="required">
+					<script>
+						layui.use('laydate', function() {
+							var laydate = layui.laydate;
+							laydate.render({
+								elem: '#birthday'
+							});
+						})
+					</script>
+				</div>
+				<label class="layui-form-mid">（请填写真实的生日，为孩子购买运动保险）</label>
+			</div>
+			<div class="join-nr"><h5><span>监护人信息</span></h5></div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><i style="color: red;">*</i>身份：</label>
+				<div class="layui-input-block">
+					<#radio name="guardianType" value="" items="${@DictUtils.getDictList('guardian_type')}" />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><i style="color: red;">*</i>姓名：</label>
+				<div class="layui-input-inline">
+					<input name="guardianName" value="${enrollList.guardianName!}" htmlEscape="false" maxlength="255" class="layui-input " lay-verify="required" />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><i style="color: red;">*</i>手机：</label>
+				<div class="layui-input-inline">
+					<input name="guardianTel" type="tel" value="${enrollList.guardianTel!}" htmlEscape="false" maxlength="255" class="layui-input " lay-verify="required" />
+				</div>
+				<label class="layui-form-mid">（请填写真实的联系方式，以便客服联系）</label>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">邮箱：</label>
+				<div class="layui-input-inline">
+					<input name="guardianEmail" type="email" value="${enrollList.guardianEmail!}" htmlEscape="false" maxlength="255" class="layui-input "  />
+				</div>
+			</div>
+			<div class="join-nr"><h5><span>课程选择</span></h5></div>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><i style="color: red;">*</i>课程类型：</label>
+				<div class="layui-input-inline" style="width: 400px">
+					<%
+						var courseTypes = @EduUtils.getCourseTypes();
+						for(courseType in courseTypes){
+					%>
+					<input type="radio" name="courseType" value="${courseType.id}" title="${courseType.name}"/>
+					<%}%>
+				</div>
+			</div>
+			<div class="layui-form-item" >
+				<div class="layui-input-block">
+					<button id="enroll" class="layui-btn layui-btn-lg" style="width: 200px" lay-filter="addData"  lay-submit>报名</button>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form;
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                beforeSend:function(){ //触发ajax请求开始时执行
+                    $("#enroll").attr("disabled","true"); //改变提交按钮上的文字并将按钮设置为不可点击
+                    $("#enroll").addClass(" layui-disabled");
+                },
+                success:function(result){
+                    if (result.code != 0 || result.code != '0') {
+                        layer.msg(result.msg);
+                    } else {
+                        layer.msg(result.msg);
+                    }
+                }
+            });
+            return false;
+        })
+    });
+</script>
+<%}%>

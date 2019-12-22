@@ -1,0 +1,152 @@
+<% layout("/layouts/micro.html",{title:"站点管理"}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<form class="layui-form" lay-filter="kit-search-form">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("cms:site:edit")){%>
+					<a class="layui-btn layui-btn-normal addsite_btn"><i class="layui-icon">&#xe608;</i>新增</a>
+					<%}%>
+					<div class="layui-inline">
+						<label class="layui-form-label">状态：</label>
+						<div class="layui-input-block">
+							<#radio name="delFlag" items="${@DictUtils.getDictList('del_flag')}" value="${site.delFlag!}"/>
+						</div>
+					</div>
+				</div>
+				<div class="kit-search-inputs clearfix">
+					<div class="kit-search-keyword">
+						<input type="text" class="layui-input" id="keyword" name="keyword" placeholder="名称" />
+						<button class="search_btn" type="button"><i class="layui-icon">&#xe615;</i></button>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="kit-table-body">
+			<table id="siteList" lay-filter="siteList"></table>
+			<!--操作-->
+			<script type="text/html" id="siteListBar">
+				<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+				{{#  if(d.delFlagValue == "1"){ }}
+				<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="ret">恢复</a>
+				{{#  } else if(d.delFlagValue == "0"){    }}
+				<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+				{{#  }}}
+			</script>
+		</div>
+	</div>
+</div>
+
+<script>
+    layui.use(['form','layer','laydate','table','laytpl'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery,
+            table = layui.table;
+
+        //列表
+        var tableIns = table.render({
+            elem: '#siteList',
+            url : '${ctx}/cms/site/listAjax',
+            cellMinWidth : 95,
+            page : true,
+            request: {
+                pageName: 'pageNo', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            height : "full-70",
+            limit : 15,
+            limits : [10,15,20,25],
+            id : "siteListTable",
+            cols : [[
+                {type: "checkbox", fixed:"left", width:50},
+                {field:'name', title: '名称'},
+                {field:'title', title: '标题'},
+                {field:'description', title: '描述'},
+                {field:'keywords',title: '关键字'},
+                {field:'theme',title: '主题'},
+                {field:'delFlagLabel',title: '状态'},
+            	<%if(shiro.hasPermission("cms:site:edit")){%>
+            	{title: '操作', width:200, templet:'#siteListBar',fixed:"right",align:"center"}
+        		<%}%>
+			]]
+    	});
+
+        //搜索
+        $(".search_btn").on("click",function(){
+            var keyword = $('#keyword');
+            var delFlag = $('input[name=delFlag]:checked');
+            table.reload("siteListTable",{
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                },
+                where: {
+                    keyword : keyword.val(),
+                    delFlag : delFlag.val(),
+                }
+            })
+        });
+
+        form.render(null, 'kit-search-form');
+        $('#kit-search-more').on('click', function() {
+            $('.kit-search-mored').toggle();
+        });
+
+        //添加
+        function addsite(id){
+            layui.layer.open({
+				title : "添加站点",
+				type : 2,
+				maxmin:true,
+				content : "${ctx}/cms/site/form?id="+id,
+				area: ['70%', '90%'],
+				<%if(shiro.hasPermission("cms:site:edit")){%>
+				btn: ['保存', '取消'],
+				yes: function(index, layero) {
+					var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+					iframeWin.saveForm();
+				}
+            	<%}%>
+        	})
+		}
+        $(".addsite_btn").click(function(){
+            var id = '${site.id}';
+            addsite(id);
+        })
+
+        //列表操作
+        table.on('tool(siteList)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data;
+
+            if(layEvent === 'edit'){ //编辑
+                addsite(data.id);
+            } else if(layEvent === 'del'){ //删除
+                layer.confirm('确定要删除该站点吗？',{icon:3, title:'提示信息'},function(index){
+                    $.post("${ctx}/cms/site/delete",{id:data.id},function(result){
+                        if(result.code=="0"){
+                            layer.msg(result.msg);
+                        }else{
+                            layer.msg(result.msg);
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                });
+            } else if(layEvent === 'ret'){ //恢复
+                layer.confirm('确认要恢复该站点吗？',{icon:3, title:'提示信息'},function(index){
+                    $.post("${ctx}/cms/site/delete",{id:data.id,isRe:true},function(result){
+                        if(result.code=="0"){
+                            layer.msg(result.msg);
+                        }else{
+                            layer.msg(result.msg);
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                });
+            }
+        });
+    })
+</script>
+<%}%>

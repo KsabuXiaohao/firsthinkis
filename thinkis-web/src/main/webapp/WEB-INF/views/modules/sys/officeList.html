@@ -1,0 +1,191 @@
+<%
+var headerPart = {
+%>
+<% include("/include/treetable.html",{title:"机构管理"}){} %>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var tpl = $("#treeTableTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
+        var data = ${@JsonMapper.toJsonString(list)}, ids = [], rootIds = [];
+        for (var i=0; i<data.length; i++){
+            ids.push(data[i].id);
+        }
+        ids = ',' + ids.join(',') + ',';
+        for (var i=0; i<data.length; i++){
+            if (ids.indexOf(','+data[i].parentId+',') == -1){
+                if ((','+rootIds.join(',')+',').indexOf(','+data[i].parentId+',') == -1){
+                    rootIds.push(data[i].parentId);
+                }
+            }
+        }
+        for (var i=0; i<rootIds.length; i++){
+            addRow("#treeTableList", tpl, data, rootIds[i], true);
+        }
+        $("#treeTable").treeTable({expandLevel : 5});
+    });
+    function addRow(list, tpl, data, pid, root){
+        for (var i=0; i<data.length; i++){
+            var row = data[i];
+            if ((${@StringUtils.jsGetVal('row.parentId')}) == pid){
+                $(list).append(Mustache.render(tpl, {
+                    dict: {
+                        blank123:0}, pid: (root?0:pid), row: row
+                }));
+                addRow(list, tpl, data, row.id);
+            }
+        }
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<form id="searchForm" action="${ctx}/sys/office/list/" method="post" class="layui-form">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("sys:office:edit")){%>
+					<a class="layui-btn layui-btn-normal addoffice_btn"><i class="layui-icon">&#xe608;</i>新增</a>
+					<%}%>
+				</div>
+				<div class="kit-search-inputs">
+					<div class="kit-search-keyword">
+						<input type="text" class="layui-input" id="keyword" name="keyword" placeholder="机构名称" />
+						<button class="search_btn" lay-submit><i class="layui-icon">&#xe615;</i></button>
+					</div>
+					<!--<a class="kit-search-more" id="kit-search-more">更多筛选<i class="layui-icon">&#xe61a;</i></a>-->
+				</div>
+			</div>
+			<div class="kit-search-mored layui-anim layui-anim-upbit">
+				<div class="kit-search-body">
+					<div class="layui-form-item">
+						<label class="layui-form-label">机构类型：</label>
+						<div class="layui-input-block">
+							<select name="type" class="layui-input" id="type">
+								<option value="" >全部</option>
+								<#options items="${@DictUtils.getDictList('sys_office_type')}" value="${office.type!}"/>
+							</select>
+						</div>
+					</div>
+					<div class="layui-form-item">
+						<label class="layui-form-label">机构等级：</label>
+						<div class="layui-input-block">
+							<select name="grade" class="layui-input" id="grade">
+								<option value="" >全部</option>
+								<#options items="${@DictUtils.getDictList('sys_office_grade')}" value="${office.grade!}"/>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="kit-search-footer">
+					<button type="reset" class="layui-btn layui-btn-sm layui-btn-primary kit-btn">重置</button>
+					<button class="layui-btn layui-btn-sm kit-btn search_btn" lay-submit>确定</button>
+				</div>
+			</div>
+		</form>
+
+		<table id="treeTable" class="layui-table" >
+			<thead>
+			<tr>
+				<th>机构名称</th>
+				<th>归属区域</th>
+				<th>机构编码</th>
+				<th>机构类型</th>
+				<th>机构等级</th>
+				<th>收费模式</th>
+				<th>项目名称</th>
+				<%if(shiro.hasPermission("sys:office:edit")){%><th width="200px">操作</th><%}%>
+			</tr>
+			</thead>
+			<tbody id="treeTableList"></tbody>
+		</table>
+		<script type="text/template" id="treeTableTpl">
+			<tr id="{{row.id}}" pId="{{pid}}">
+				<td>{{row.name}}</td>
+				<td>{{row.area.name}}</td>
+				<td>{{row.code}}</td>
+				<td>{{row.typeLabel}}</td>
+				<td>{{row.gradeLabel}}</td>
+				<td>{{row.cmoney}}</td>
+				<td>{{row.projectname}}</td>
+				<%if(shiro.hasPermission("sys:office:edit")){%>
+				<td>
+					<a class="layui-btn layui-btn-xs" onclick="editoffice('{{row.id}}')">修改</a>
+					<a class="layui-btn layui-btn-xs" onclick="addChildoffice('{{row.id}}')">添加下级机构</a>
+					<a class="layui-btn layui-btn-danger layui-btn-xs" onclick="deloffice('{{row.id}}')">删除</a>
+				</td>
+				<%}%>
+			</tr>
+		</script>
+	</div>
+</div>
+<script>
+    layui.use(['form','layer','laydate','table','laytpl'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery;
+
+        //添加
+        editoffice = function(id){
+            var index = layui.layer.open({
+				title : "添加机构",
+				type : 2,
+				content : "${ctx}/sys/office/form?id="+id,
+				area: ['70%', '80%'],
+				<%if(shiro.hasPermission("sys:office:edit")){%>
+				btn: ['保存', '取消'],
+					yes: function(index, layero) {
+						var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+						iframeWin.saveForm();
+					},
+					end:function(){
+						location.reload();
+					}
+				<%}%>
+			})
+        }
+
+        form.render(null, 'kit-search-form');
+        $('#kit-search-more').on('click', function() {
+            $('.kit-search-mored').toggle();
+        });
+
+        $(".addoffice_btn").click(function(){
+            var id = '${office.id}';
+            editoffice(id);
+        })
+        //添加下级数据
+        addChildoffice = function(id){
+            var index = layui.layer.open({
+				title : "添加下级机构",
+				type : 2,
+				content : "${ctx}/sys/office/form?parent.id="+id,
+				area: ['70%', '80%'],
+                <%if(shiro.hasPermission("sys:office:edit")){%>
+                btn: ['保存', '取消'],
+                    yes: function(index, layero) {
+                    	var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                    	iframeWin.saveForm();
+                	},
+					end:function(){
+						location.reload();
+					}
+            	<%}%>
+        	})
+        }
+
+        //删除
+        deloffice = function(id){
+            layer.confirm('要删除该机构及所有子机构项吗？',{icon:3, title:'提示信息'},function(index){
+                $.post("${ctx}/sys/office/delete",{id:id},function(result){
+                    if(result.code=="0"){
+                        layer.msg("删除成功");
+                    }else{
+                        layer.msg(result.msg);
+                    }
+                    location.reload();
+                    layer.close(index);
+                });
+            });
+        }
+    })
+</script>
+<%}%>

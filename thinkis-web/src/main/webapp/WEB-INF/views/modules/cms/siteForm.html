@@ -1,0 +1,115 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm" action="${ctx}/cms/site/save" method="post" class="layui-form">
+			<input type="hidden"  name="id" value="${site.id}"/>
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md8">
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label" ><font color="red">*</font>站点名称</label>
+								<div class="layui-input-block">
+									<input type="text" name="name" value="${site.name}" htmlEscape="false" maxlength="200" class="layui-input" lay-verify="required"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label" ><font color="red">*</font>站点标题</label>
+								<div class="layui-input-block">
+									<input type="text" name="title" value="${site.title}" htmlEscape="false" maxlength="200" class="layui-input" lay-verify="required"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">版权信息</label>
+								<div class="layui-input-block">
+									<#ueditor id="copyright" name="copyright" content="${site.copyright!}" height="200" />
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">描述</label>
+								<div class="layui-input-block">
+									<textarea name="description" htmlEscape="false" rows="4" maxlength="200" class="layui-textarea">${site.description}</textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-md4">
+					<div class="layui-card">
+						<div class="layui-card-header">站点Logo</div>
+						<div class="layui-card-body">
+							<#fileUpload id="logo" name="logo" value="${site.logo}" filename="" type="images" fileType="jpg|png" width="300px" height="200px" required="false"/>
+						</div>
+					</div>
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label">默认主题</label>
+								<div class="layui-input-block">
+									<select name="theme" class="input-medium">
+										<#options items="${@DictUtils.getDictList('cms_theme')}" value="${site.theme}"/>
+									</select>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">自定义首页</label>
+								<div class="layui-input-block">
+									<input type="text" name="customIndexView" value="${site.customIndexView}" htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">关键字</label>
+								<div class="layui-input-block">
+									<input type="text" name="keywords" value="${site.keywords}" placeholder="填写描述及关键字，有助于搜索引擎优化" htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block" style="display: none;">
+					<%if(shiro.hasPermission("cms:category:edit")){%>
+					<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+					<%}%>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    top.layer.close(index);
+                    top.layer.msg(result.msg);
+                    layer.closeAll("iframe");
+                    //刷新父页面
+                    parent.location.reload();
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

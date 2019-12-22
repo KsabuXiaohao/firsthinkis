@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.sys.dao.SequenceDao">
+    
+	<sql id="sequenceColumns">
+		a.name AS "name",
+		a.current_value AS "currentValue",
+		a.increment_value AS "incrementValue",
+		a.uuid_type AS "uuidType",
+		a.key_len_type AS "keyLenType",
+		a.key_len AS "keyLen",
+		a.key_fix_type AS "keyFixType",
+		a.key_fix AS "keyFix",
+		a.key_date_type AS "keyDateType",
+		a.key_date_loop AS "keyDateLoop",
+		a.key_date_loop_init AS "keyDateLoopInit",
+		a.key_date_format AS "keyDateFormat",
+		a.key_date AS "keyDate"
+	</sql>
+	
+	<sql id="sequenceJoins">
+	</sql>
+    
+	<select id="get" resultType="Sequence">
+		SELECT 
+			<include refid="sequenceColumns"/>
+		FROM sys_sequence a
+		<include refid="sequenceJoins"/>
+		WHERE a.name = #{id}
+	</select>
+	
+	<select id="findList" resultType="Sequence">
+		SELECT 
+			<include refid="sequenceColumns"/>
+		FROM sys_sequence a
+		<include refid="sequenceJoins"/>
+		<where>
+			
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Sequence">
+		SELECT 
+			<include refid="sequenceColumns"/>
+		FROM sys_sequence a
+		<include refid="sequenceJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_sequence(
+			name,
+			current_value,
+			increment_value,
+			uuid_type,
+			key_len_type,
+			key_len,
+			key_fix_type,
+			key_fix,
+			key_date_type,
+			key_date_loop,
+			key_date_loop_init,
+			key_date_format,
+			key_date
+		) VALUES (
+			#{name},
+			#{currentValue},
+			#{incrementValue},
+			#{uuidType},
+			#{keyLenType},
+			#{keyLen},
+			#{keyFixType},
+			#{keyFix},
+			#{keyDateType},
+			#{keyDateLoop},
+			#{keyDateLoopInit},
+			#{keyDateFormat},
+			#{keyDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_sequence SET 	
+			name = #{name},
+			current_value = #{currentValue},
+			increment_value = #{incrementValue},
+			uuid_type = #{uuidType},
+			key_len_type = #{keyLenType},
+			key_len = #{keyLen},
+			key_fix_type = #{keyFixType},
+			key_fix = #{keyFix},
+			key_date_type = #{keyDateType},
+			key_date_loop = #{keyDateLoop},
+			key_date_loop_init = #{keyDateLoopInit},
+			key_date_format = #{keyDateFormat},
+			key_date = #{keyDate}
+		WHERE name = #{name}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sys_sequence
+		WHERE name = #{name}
+	</update>
+	
+</mapper>

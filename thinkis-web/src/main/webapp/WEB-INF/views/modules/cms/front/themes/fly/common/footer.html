@@ -1,0 +1,20 @@
+<div class="fly-footer">
+  <p><a href="#" target="_blank">${@Global.getConfig('productName')}</a> ${@Global.getConfig('copyrightYear')} &copy; <a href="#" target="_blank">thinkis 出品</a></p>
+  ${site.copyright}
+</div>
+<script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1274425552'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s22.cnzz.com/z_stat.php%3Fid%3D1274425552%26show%3Dpic' type='text/javascript'%3E%3C/script%3E"));</script>
+<script>
+layui.cache.user = {
+  username: '游客'
+  ,uid: -1
+  ,avatar: '${ctxStatic}/modules/cms/front/themes/fly/images/avatar/00.jpg'
+  ,experience: 83
+  ,sex: '男'
+};
+layui.config({
+  version: "3.0.0"
+  ,base: '${ctxStatic}/modules/cms/front/themes/fly/mods/'  //这里实际使用时，建议改成绝对路径
+}).extend({
+  fly: 'index'
+}).use('fly');
+</script>

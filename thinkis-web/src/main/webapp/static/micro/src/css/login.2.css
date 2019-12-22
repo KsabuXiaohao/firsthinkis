@@ -1,0 +1,116 @@
+.login-main{
+  position: fixed;
+  background: url("../../../images/bg.png") no-repeat;
+  height:100vh;
+  width:100%;
+  overflow: hidden;
+  background-size:cover;
+}
+.login-box{
+  text-align: center;
+  background-color: #fff;
+  width: 989px;
+  height: 472px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+.login-box-left{
+  float: left;
+  width: 537px;
+  height: 100%;
+  background: url("../../../images/left-bg.png") no-repeat;
+}
+.login-box-left-title{
+  position: relative;
+  top:102px;
+  color: white;
+  font-size: 38px;
+}
+.login-box-left .login-box-logo{
+  position: relative;
+  top:180px;
+  height: 153px;
+  margin: 0px 200px;
+}
+.login-box-logo1{
+  height:100%;
+  width:100%;
+  background: url("../../../images/logo1.png") no-repeat;
+}
+.login-box-right{
+  float: left;
+  width: 452px;
+  height: 100%;
+  border-radius: 8px;
+}
+.login-box-form{
+  margin-top: 95px;
+  margin-left: 80px;
+}
+.login-box-right-title{
+  text-align: left;
+  color: #33343D;
+  font-size: 20px;
+  margin-bottom: 30px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+i.layui-icon {
+  float: left;
+  font-style: normal;
+  -webkit-text-stroke-width: .2px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 30px;
+}
+.login-input{
+  float: left;
+  width: 300px;
+  border-radius: 0;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  overflow: visible;
+  border: 1px solid #E0E0E0;
+  background-color: #FFF;
+  transition: all 0.3s ease-out;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  border-color: #ECECEE;
+  height: 40px;
+  line-height: 40px;
+}
+.login-input input {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+  border: none;
+  outline: 0;
+  padding: 0;
+  font-weight: 400;
+  vertical-align: baseline;
+  background-color: transparent;
+  height: 26px;
+  line-height: 26px;
+  margin: 0;
+  padding: 0 8px;
+  border-radius: 4px;
+  color: #333;
+  padding-left: 25px;
+  font-size: 14px;
+}
+.login-btn{
+  float: left;
+  width: 320px;
+  border-radius: 6px;
+  line-height: 50px;
+  height: 50px;
+  background-color: #1A8DF1;
+  font-weight: bold;
+}

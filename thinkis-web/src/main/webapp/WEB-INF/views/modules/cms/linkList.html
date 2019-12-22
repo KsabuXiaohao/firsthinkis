@@ -1,0 +1,157 @@
+<% layout("/layouts/micro.html",{title:"链接管理"}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<form class="layui-form" lay-filter="kit-search-form">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("cms:link:edit")){%>
+					<a class="layui-btn layui-btn-normal addlink_btn"><i class="layui-icon">&#xe608;</i>新增</a>
+					<%}%>
+				</div>
+				<div class="kit-search-inputs clearfix">
+					<div class="kit-search-keyword">
+						<input type="text" class="layui-input" id="title" name="title" placeholder="名称" />
+						<button class="search_btn" type="button"><i class="layui-icon">&#xe615;</i></button>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="kit-table-body">
+			<table id="linkList" lay-filter="linkList"></table>
+			<!--操作-->
+			<script type="text/html" id="linkListBar">
+				<a class="layui-btn layui-btn-xs" lay-event="edit">修改</a>
+				{{#  if(d.delFlagValue == "0"){ }}
+				<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+				{{#  } else{    }}
+				<a class="layui-btn layui-btn-xs" lay-event="release">发布</a>
+				{{#  }}}
+
+			</script>
+		</div>
+
+	</div>
+</div>
+
+<script>
+    layui.use(['form','layer','laydate','table','laytpl'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery,
+            table = layui.table;
+
+        //列表
+        var tableIns = table.render({
+            elem: '#linkList',
+            url : '${ctx}/cms/link/listAjax?categoryId=${link.category.id!}',
+            cellMinWidth : 95,
+            page : true,
+            request: {
+                pageName: 'pageNo', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            height : "full-70",
+            limit : 15,
+            limits : [10,15,20,25],
+            id : "linkListTable",
+            cols : [[
+                /* {type: "checkbox", fixed:"left", width:50}, */
+                {field:'categoryName', title: '栏目'},
+                {field:'title',title: '名称'},
+                {field:'weight', title: '权重'},
+                {field:'userName', title: '发布者'},
+                {field:'updateDate', title: '更新时间'},
+				<%if(shiro.hasPermission("cms:link:edit")){%>
+				{title: '操作', width:150, templet:'#linkListBar',fixed:"right",align:"center"}
+				<%}%>
+			]],
+    	});
+
+        //搜索
+        $(".search_btn").on("click",function(){
+            var title = $('#title');
+            table.reload("linkListTable",{
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                },
+                where: {
+                    title : title.val()
+                }
+            })
+        });
+
+        form.render(null, 'kit-search-form');
+        $('#kit-search-more').on('click', function() {
+            $('.kit-search-mored').toggle();
+        });
+        //添加
+        function addlink(id){
+            var index = layui.layer.open({
+                    title : "添加链接",
+                    type : 2,
+                    maxmin:true,
+                    content : "${ctx}/cms/link/form?id="+id+"&category.id=${link.category.id}&category.name=${link.category.name}",
+                    area: ['80%', '90%'],
+                <%if(shiro.hasPermission("cms:link:edit")){%>
+                btn: ['保存', '取消'],
+                    yes: function(index, layero) {
+                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                    iframeWin.saveForm();
+                }
+            <%}%>
+        })
+        }
+        $(".addlink_btn").click(function(){
+            var id = '${link.id}';
+            addlink(id);
+        })
+        //列表操作
+        table.on('tool(linkList)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data;
+            if(layEvent === 'edit'){ //编辑
+                var index = layui.layer.open({
+                        title : "编辑链接",
+                        type : 2,
+                        maxmin:true,
+                        content : "${ctx}/cms/link/form?id="+data.id,
+                        area: ['80%', '90%'],
+                    <%if(shiro.hasPermission("cms:link:edit")){%>
+                    btn: ['保存', '取消'],
+                        yes: function(index, layero) {
+                        var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                        iframeWin.saveForm();
+                    }
+                <%}%>
+            })
+            } else if(layEvent === 'release'){ //发布
+                layer.confirm('确认要发布该链接吗？',{icon:3, title:'提示信息'},function(index){
+                    $.post("${ctx}/cms/link/delete",{id:data.id,isRe:true},function(result){
+                        if(result.code=="0"){
+                            layer.msg(result.msg);
+                        }else{
+                            layer.msg(result.msg);
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                });
+            } else if(layEvent === 'del'){
+                layer.confirm('确认要删除该链接吗？',{icon:3, title:'提示信息'},function(index){
+                    $.post("${ctx}/cms/link/delete",{id:data.id},function(result){
+                        if(result.code=="0"){
+                            layer.msg(result.msg);
+                        }else{
+                            layer.msg(result.msg);
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                });
+
+            }
+        });
+
+    })
+</script>
+<%}%>

@@ -1,0 +1,32 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li><a href="${ctx}/act/task/todo/">待办任务</a></li>
+		<li><a href="${ctx}/act/task/historic/">已办任务</a></li>
+		<li class="layui-this"><a href="${ctx}/act/task/form?taskId=${act.taskId}&taskName=${act.taskName}&taskDefKey=${act.taskDefKey}&procInsId=${act.procInsId}&procDefId${act.procDefId}">${empty act.procInsId?"新建任务":"任务处理"}</a></li>
+	</ul>
+	<div class="layui-tab-content">
+	<form method="post" class="layui-form">
+		<#message content="${message!}"/>
+		<div id="formContent">
+			<iframe id="reportFrame" src="${formUrl}" width="100%" height="500" style="border:0;" noresize="noresize"></iframe>
+		</div>
+		<#histoicFlow procInsId="${procInsId}" />
+	</form>
+	
+	</div>
+</div>
+<%}%>

@@ -1,0 +1,68 @@
+<% layout("/modules/cms/front/themes/edu/common/layout.html",{nav:category.id}){ %>
+
+<div class="site-banner">
+  <div class="site-banner-bg layui-hide-xs" style="background-image: url('${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/news-pc.jpg'); background-size: cover;">
+  </div>
+  <div class="site-banner-main layui-hide-md layui-hide-lg ">
+    <div class="site-zfj">
+      <i class="layui-icon" style="color: #fff; color: rgba(255,255,255,.7);">&#xe7ae;</i>
+    </div>
+    <%
+    var topNews = @CmsUtils.getArticleList(site.id, "1003", 1, '');
+    for(article in topNews){
+    %>
+    <div class="layui-anim site-desc layui-hide-lg layui-hide-md ">
+      <h1 style="color: white;font-size: 20px;">${article.title!}</h1>
+      <p style="color: white;font-size: 14px;margin-top: 5px;" class="layui-hide-xs">度身定制课程，限量报名</p>
+    </div>
+    <div class="site-download">
+      <a  href="${article.url}"
+          class="layui-inline site-down" style="color: #fff;">
+        <cite class="layui-icon">&#xe609;</cite>
+        我要报名
+      </a>
+    </div>
+    <%}%>
+  </div>
+</div>
+<div class="ny-title">
+  <h5><i>俱乐部新闻</i></h5>
+  <span>News Center</span>
+  <p>
+    最新资讯，丰富的篮球知识
+  </p>
+</div>
+<div class="zhishi">
+  <div class="centerbox ingfd clearfix">
+    <div class="zhishi-left" style="width:100%;margin-bottom: 20px;">
+      <div class="zhishibox">
+        <div class="zhishi-list">
+          <%if(category.module == 'article'){%>
+          <%for(new in page.list){%>
+          <a href="${new.url}">
+            <dl>
+              <dt>
+                <b>${new.createDate,dateFormat="dd"}</b>
+                <p>${new.createDate,dateFormat="MM"}-</p>
+              <dd>
+                <b title="${new.title}">${new.title}</b>
+                <i>${new.createDate,dateFormat="yyyy-MM-dd"}</i>
+                <p>${new.description}</p>
+              </dd>
+            </dl>
+          </a>
+          <%}elsefor{%>
+          <a>暂无数据</a>
+          <%}}%>
+        </div>
+      </div>
+      <div class="pagination" style="background-color:white;margin-top: 10px;text-align: center">${page}</div>
+      <script type="text/javascript">
+          function page(n,s){
+              location="${ctxFront}/list-${category.id}${@Global.getUrlSuffix()}?pageNo="+n+"&pageSize="+s;
+          }
+      </script>
+    </div>
+  </div>
+</div>
+<% } %>

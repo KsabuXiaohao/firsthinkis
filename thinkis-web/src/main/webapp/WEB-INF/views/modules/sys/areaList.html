@@ -1,0 +1,131 @@
+<%
+var headerPart = {
+%>
+<% include("/include/treetable.html"){} %>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var tpl = $("#treeTableTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
+        var data = ${@JsonMapper.toJsonString(list)}, rootId = "0";
+        addRow("#treeTableList", tpl, data, rootId, true);
+        $("#treeTable").treeTable({expandLevel : 2});
+    });
+    function addRow(list, tpl, data, pid, root){
+        for(var i=0; i<data.length; i++){
+            var row = data[i];
+            if ((${@StringUtils.jsGetVal('row.parentId')}) == pid){
+                $(list).append(Mustache.render(tpl, {
+                    dict: {
+                        type: getDictLabel(${@JsonMapper.toJsonString(@DictUtils.getDictList('sys_area_type'))}, row.type)
+                    }, pid: (root?0:pid), row: row
+                }));
+                addRow(list, tpl, data, row.id);
+            }
+        }
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<#message content="${message!}"/>
+		<div class="kit-table-header">
+			<div class="kit-search-btns">
+				<%if(shiro.hasPermission("sys:area:edit")){%>
+				<a class="layui-btn layui-btn-normal LAY_ADD_area_btn"><i class="layui-icon">&#xe608;</i>区域添加</a>
+				<%}%>
+			</div>
+		</div>
+		<table id="treeTable" class="layui-table table-condensed" >
+			<thead>
+				<tr>
+					<th>区域名称</th>
+					<th>区域编码</th>
+					<th>区域类型</th>
+					<th>备注</th>
+					<%if(shiro.hasPermission("sys:area:edit")){%>
+					<th style="width: 180px;">操作</th>
+					<%}%>
+				</tr>
+			</thead>
+			<tbody id="treeTableList"></tbody>
+		</table>
+		<script type="text/template" id="treeTableTpl">
+			<tr id="{{row.id}}" pId="{{pid}}">
+				<td><a href="${ctx}/sys/area/form?id={{row.id}}">{{row.name}}</a></td>
+				<td>{{row.code}}</td>
+				<td>{{dict.type}}</td>
+				<td>{{row.remarks}}</td>
+				<%if(shiro.hasPermission("sys:area:edit")){%><td>
+					<a class="layui-btn layui-btn-xs" onclick="editArea('{{row.id}}')" href="javascript:void(0);">修改</a>
+					<a class="layui-btn layui-btn-xs" onclick="addNextArea('{{row.id}}')" href="javascript:void(0);">添加下级区域</a>
+					<a class="layui-btn layui-btn-danger layui-btn-xs" href="${ctx}/sys/area/delete?id={{row.id}}" onclick="return confirmx('要删除该区域及所有子区域项吗？', this.href)">删除</a>
+				</td>
+				<%}%>
+			</tr>
+		</script>
+	</div>
+</div>
+<script>
+    layui.use(['form','layer'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery;
+        //添加
+        $(".LAY_ADD_area_btn").click(function(){
+            var index = layui.layer.open({
+                title : "添加区域",
+                type : 2,
+                content : "${ctx}/sys/area/form",
+                area: ['800px', '500px'],
+                <%if(shiro.hasPermission("sys:area:edit")){%>
+                btn: ['确定', '取消'],
+                yes: function(index, layero) {
+                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                    iframeWin.saveForm();
+                },
+                end:function(){
+                    location.reload();
+                }
+				<%}%>
+            })
+        })
+    })
+    var editArea = function(id){
+        var index = layui.layer.open({
+            title : "修改区域",
+            type : 2,
+            content : "${ctx}/sys/area/form?id="+id,
+            area: ['800px', '500px'],
+            <%if(shiro.hasPermission("sys:area:edit")){%>
+            btn: ['确定', '取消'],
+                yes: function(index, layero) {
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                iframeWin.saveForm();
+            },
+            end:function(){
+                location.reload();
+            }
+        	<%}%>
+        })
+    }
+    var addNextArea = function(id){
+        var index = layui.layer.open({
+            title : "添加下级区域",
+            type : 2,
+            content : "${ctx}/sys/area/form?parent.id="+id,
+            maxmin: true,
+            area: ['800px', '500px'],
+            <%if(shiro.hasPermission("sys:area:edit")){%>
+            btn: ['确定', '取消'],
+                yes: function(index, layero) {
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                iframeWin.saveForm();
+            },
+            end:function(){
+                location.reload();
+            }
+        	<%}%>
+        })
+    }
+</script>
+<%}%>

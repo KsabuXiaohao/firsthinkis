@@ -1,0 +1,217 @@
+<%
+var headerPart = {
+%>
+<style type="text/css">
+	.layui-form-label{
+		width: 120px !important;
+	}
+	.layui-input-block{
+		margin-left: 150px!important;
+	}
+</style>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart,background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm" action="${ctx}/cms/category/save" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${category.id}"/>
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md8">
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label" ><font color="red">*</font>归属机构</label>
+									<div class="layui-input-inline">
+										<#treeselect id="office" name="office.id" value="${category.office.id}" labelName="office.name" labelValue="${category.office.name}"
+										title="机构" url="/sys/office/treeData" cssClass="required"/>
+									</div>
+								</div>
+
+								<div class="layui-inline">
+									<label class="layui-form-label"><font color="red">*</font>上级栏目</label>
+									<div class="layui-input-inline">
+										<#treeselect id="category" name="parent.id" value="${category.parent.id}" labelName="parent.name" labelValue="${category.parent.name}"
+										title="栏目" url="/cms/category/treeData" extId="${category.id}" cssClass="required"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">栏目模型</label>
+								<div class="layui-input-inline">
+									<select name="module">
+										<option value="">公共模型</option>
+										<#options items="${@DictUtils.getDictList('cms_module')}" value="${category.module}"/>
+									</select>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="red">*</font>栏目名称</label>
+								<div class="layui-input-block">
+									<input type="text" name="name" value="${category.name}" htmlEscape="false" maxlength="50" class="layui-input" lay-verify="required"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">链接</label>
+								<div class="layui-input-block">
+									<input type="text" name="href" value="${category.href}" placeholder="栏目超链接地址，优先级高" htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">目标</label>
+								<div class="layui-input-block">
+									<input type="text" name="target" value="${category.target}" placeholder="栏目超链接打开的目标窗口，新窗口打开，请填写：_blank" htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">关键字</label>
+								<div class="layui-input-block">
+									<input type="text" name="keywords" value="${category.keywords}" placeholder="填写描述及关键字，有助于搜索引擎优化" htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="red">*</font>排序</label>
+								<div class="layui-input-block">
+									<input type="text" name="sort" value="${category.sort}" placeholder="栏目的排列次序" htmlEscape="false" maxlength="11" class="digits layui-input" lay-verify="required"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">自定义列表视图</label>
+								<div class="layui-input-inline">
+									<select name="customListView">
+										<option value="" label="默认视图"/>
+										<%for(listview in listViewList){%>
+										<option value="${listview}" <%if(category.customListView == listview){%>selected<%}%>>${listview}</option>
+										<%}%>
+									</select>
+								</div>
+								<div class="layui-form-mid layui-word-aux">自定义列表视图名称必须以"${category_DEFAULT_TEMPLATE}"开始</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">自定义内容视图</label>
+								<div class="layui-input-inline">
+									<select name="customContentView">
+										<option value="" label="默认视图"/>
+										<%for(contentview in contentViewList){%>
+										<option value="${contentview}" <%if(category.customContentView == contentview){%>selected<%}%>>${contentview}</option>
+										<%}%>
+									</select>
+								</div>
+								<div class="layui-form-mid layui-word-aux">自定义内容视图名称必须以"${article_DEFAULT_TEMPLATE}"开始</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">自定义视图参数</label>
+								<div class="layui-input-inline">
+									<input type="text" name="viewConfig" placeholder="视图参数" value="${category.viewConfig}" htmlEscape="true" class="layui-input"/>
+								</div>
+								 <div class="layui-form-mid layui-word-aux">视图参数例如: {count:2, title_show:"yes"}</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label" >描述</label>
+								<div class="layui-input-block">
+									<textarea name="description" htmlEscape="false" rows="4" maxlength="200" class="layui-textarea">${category.description}</textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-md4">
+					<div class="layui-card">
+						<div class="layui-card-header">缩略图</div>
+						<div class="layui-card-body">
+							<#imageUpload id="image" desc="上传缩略图片类型为jpg或png，图片尺寸为100X100，最大允许上传1M。" size="1024" name="image" value="${category.image!}" required="false"/>
+						</div>
+					</div>
+					<div class="layui-card">
+						<div class="layui-card-header">栏目配置</div>
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label">导航页显示</label>
+								<div class="layui-input-block">
+									<#radio name="inMenu" items="${@DictUtils.getDictList('show_hide')}" value="${category.inMenu}"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">分类页显示</label>
+								<div class="layui-input-block">
+									<#radio name="inList" items="${@DictUtils.getDictList('show_hide')}" value="${category.inList}"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label" title="默认展现方式：有子栏目显示栏目列表，无子栏目显示内容列表。">展现方式</label>
+								<div class="layui-input-block" >
+									<#radio name="showModes" items="${@DictUtils.getDictList('cms_show_modes')}" value="${category.showModes}"/>
+								</div>
+								<!-- <div class="layui-form-mid layui-word-aux">有子栏目显示栏目列表，无子栏目显示内容列表。</div> -->
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">允许评论</label>
+								<div class="layui-input-block">
+									<#radio name="allowComment" items="${@DictUtils.getDictList('yes_no')}" value="${category.allowComment}"/>
+								</div>
+								<!-- <div class="layui-form-mid layui-word-aux">有子栏目显示栏目列表，无子栏目显示内容列表。</div> -->
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">需要审核</label>
+								<div class="layui-input-block">
+									<#radio name="isAudit" items="${@DictUtils.getDictList('yes_no')}" value="${category.isAudit}"/>
+								</div>
+								<!-- <div class="layui-form-mid layui-word-aux">有子栏目显示栏目列表，无子栏目显示内容列表。</div> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block" style="display: none;">
+					<%if(shiro.hasPermission("cms:category:edit")){%>
+					<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+					<%}%>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    top.layer.close(index);
+                    top.layer.msg(result.msg);
+                    parent.layer.closeAll("iframe");
+                    //刷新父页面
+                    parent.location.reload();
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="shortcut icon" href="${ctxStatic}/images/favicon.ico" type="image/x-icon" />
+	<title>${@Global.getConfig('productName')}</title>
+	<% include("/include/microHead.html"){} %>
+	<link rel="stylesheet" href="${ctxStatic }/micro/src/css/admin.css" media="all" />
+	${headerSection!}
+</head>
+<body class="kit-theme" <%if(has(background) && (background=='true')){%>style="background-color: #F2F2F2;" <%}%>>
+	${layoutContent}
+</body>
+</html>

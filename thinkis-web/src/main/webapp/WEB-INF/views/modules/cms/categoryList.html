@@ -1,0 +1,130 @@
+<%
+var headerPart = {
+%>
+<% include("/include/treetable.html"){} %>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#treeTable").treeTable({expandLevel : 3});
+        $(".addtpl_btn").click(function(){
+            addtpl('');
+        });
+    });
+    function updateSort() {
+        layer.load(0, {shade: false});
+        $("#listForm").attr("action", "${ctx}/cms/category/updateSort");
+        $("#listForm").submit();
+    }
+
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+
+    //添加
+    function addtpl(id){
+        var index = layui.layer.open({
+                title : "添加栏目",
+                type : 2,
+                maxmin:true,
+                content : "${ctx}/cms/category/form?id="+id,
+                area: ['70%', '90%'],
+            <%if(shiro.hasPermission("cms:category:edit")){%>
+            btn: ['保存', '取消'],
+                yes: function(index, layero) {
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                iframeWin.saveForm();
+            }
+        <%}%>
+    })
+    }
+    //添加下级
+    function addNexttpl(id){
+        var index = layui.layer.open({
+			title : "添加下级栏目",
+			type : 2,
+			maxmin:true,
+			content : "${ctx}/cms/category/form?parent.id="+id,
+			area: ['70%', '90%'],
+			<%if(shiro.hasPermission("cms:category:edit")){%>
+			btn: ['保存', '取消'],
+			yes: function(index, layero) {
+				var iframeWin = window[layero.find('iframe')[0]['name']];
+				iframeWin.saveForm();
+			}
+			<%}%>
+    	})
+    }
+    //删除
+    function deltpl(id){
+        layer.confirm('要删除该栏目及所有子栏目项吗？',{icon:3, title:'提示信息'},function(index){
+            $.post("${ctx}/cms/category/delete",{id:id},function(result){
+                if(result.code=="0"){
+                    layer.msg(result.msg);
+                }else{
+                    layer.msg(result.msg);
+                }
+                document.location.reload();
+            });
+        });
+    }
+
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<form id="listForm" method="post" class="layui-form">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("cms:category:edit")){%>
+					<a class="layui-btn layui-btn-normal addtpl_btn"><i class="layui-icon">&#xe608;</i>新增</a>
+					<input id="btnSubmit" class="layui-btn btn-primary" type="button" value="保存排序" onclick="updateSort();"/>
+					<%}%>
+				</div>
+			</div>
+			<table id="treeTable" class="layui-table" >
+				<tr>
+					<th>栏目名称</th>
+					<th>栏目编号</th>
+					<th style="text-align:center">归属机构</th>
+					<th style="text-align:center">栏目模型</th>
+					<th style="text-align:center;width: 80px;">排序</th>
+					<th style="text-align:center" title="是否在导航中显示该栏目">导航菜单</th>
+					<th style="text-align:center" title="是否在分类页中显示该栏目的文章列表">栏目列表</th>
+					<th style="text-align:center">展现方式</th>
+					<th style="text-align:center;width: 250px;">操作</th>
+				</tr>
+				<%for(tpl in list){%>
+				<tr id="${tpl.id}" pId="${tpl.parent.id != '1'?tpl.parent.id:'0'}">
+					<td >${tpl.name}</td>
+					<td >${tpl.id}</td>
+					<td style="text-align:center">${tpl.office.name}</td>
+					<td style="text-align:center">${@DictUtils.getDictLabel(tpl.module, 'cms_module', '公共模型')}</td>
+					<td style="text-align:center;">
+						<%if(shiro.hasPermission("cms:category:edit")){%>
+						<input type="hidden" name="ids" value="${tpl.id}"/>
+						<input name="sorts" type="text" value="${tpl.sort}" class="layui-input" style="width:80px;height:22px;margin:0;padding:0;text-align:center;">
+						<%}%><%if(shiro.lacksPermission("cms:category:edit")){%>
+						${tpl.sort}
+						<%}%>
+					</td>
+					<td style="text-align:center">${@DictUtils.getDictLabel(tpl.inMenu, 'show_hide', '隐藏')}</td>
+					<td style="text-align:center">${@DictUtils.getDictLabel(tpl.inList, 'show_hide', '隐藏')}</td>
+					<td style="text-align:center">${@DictUtils.getDictLabel(tpl.showModes, 'cms_show_modes', '默认展现方式')}</td>
+					<td style="text-align:center;width: 250px;">
+						<a class="layui-btn layui-btn-xs" href="${ctxFront}/list-${tpl.id}${@Global.getUrlSuffix()}" target="_blank">访问</a>
+						<%if(shiro.hasPermission("cms:category:edit")){%>
+						<a class="layui-btn layui-btn-xs"  onclick="addtpl('${tpl.id}')">修改</a>
+						<a class="layui-btn layui-btn-xs" onclick="addNexttpl('${tpl.id}')">添加下级栏目</a>
+						<a class="layui-btn layui-btn-xs layui-btn-danger" onclick="deltpl('${tpl.id}')">删除</a>
+						<%}%>
+					</td>
+				</tr>
+				<%}%>
+			</table>
+		</form>
+	</div>
+</div>
+<%}%>

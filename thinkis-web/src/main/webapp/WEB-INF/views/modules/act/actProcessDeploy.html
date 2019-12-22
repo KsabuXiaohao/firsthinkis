@@ -1,0 +1,38 @@
+<% layout("/layouts/micro.html"){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li><a href="${ctx}/act/process/">流程管理</a></li>
+		<li class="layui-this"><a href="${ctx}/act/process/deploy/">部署流程</a></li>
+		<li><a href="${ctx}/act/process/running/">运行中的流程</a></li>
+	</ul>
+	<#message content="${message!}"/>
+	<div class="layui-tab-content">
+		<form id="inputForm" action="${ctx}/act/process/deploy" method="post" enctype="multipart/form-data" class="layui-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label">流程分类：</label>
+				<div class="layui-input-inline">
+					<select id="category" name="category" class="input-xlarge" lay-verify="required">
+						<#options items="${@DictUtils.getDictList('act_category')}" value=""/>
+					</select>
+				</div>
+				<div class="layui-form-mid "><font color="red">*</font> </div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">流程文件：</label>
+				<div class="layui-input-inline">
+					<input type="file" id="file" name="file" class="input-xlarge" lay-verify="required"/>
+				</div>
+				<div class="layui-form-mid "><font color="red">*</font> </div>
+				<div class=" layui-word-aux">支持文件格式：zip、bar、bpmn、bpmn20.xml</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<button class="layui-btn" lay-filter="*" lay-submit>保 存</button>
+					<button type="reset" class="layui-btn layui-btn-primary" onclick="history.go(-1)">返回</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<%}%>

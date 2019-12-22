@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/firsthinkis.iml" filepath="$PROJECT_DIR$/firsthinkis.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-act/thinkis-act.iml" filepath="$PROJECT_DIR$/thinkis-act/thinkis-act.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-api/thinkis-api.iml" filepath="$PROJECT_DIR$/thinkis-api/thinkis-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-cms/thinkis-cms.iml" filepath="$PROJECT_DIR$/thinkis-cms/thinkis-cms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-core/thinkis-core.iml" filepath="$PROJECT_DIR$/thinkis-core/thinkis-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-gen/thinkis-gen.iml" filepath="$PROJECT_DIR$/thinkis-gen/thinkis-gen.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-miniapp/thinkis-miniapp.iml" filepath="$PROJECT_DIR$/thinkis-miniapp/thinkis-miniapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-web/thinkis-web.iml" filepath="$PROJECT_DIR$/thinkis-web/thinkis-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/thinkis-weixin/thinkis-weixin.iml" filepath="$PROJECT_DIR$/thinkis-weixin/thinkis-weixin.iml" />
+    </modules>
+  </component>
+</project>

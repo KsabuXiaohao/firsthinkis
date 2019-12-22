@@ -1,0 +1,107 @@
+<%
+var headerPart = {
+%>
+<% include("/include/treetable.html"){} %>
+<script type="text/javascript">
+    $(document).ready(function(){
+    });
+    function page(n,s){
+        location = '${ctx}/act/model/?pageNo='+n+'&pageSize='+s;
+    }
+    function updateCategory(id, category){
+        layui.use(['form'],function () {
+            var form = layui.form;
+            layer.open({
+                type: 1,
+                title: '设置分类',
+                area: ['400px', '280px'], //宽高
+                content: $("#categoryBox").html(),
+                btn:['关闭']
+            });
+            form.render('select');
+        });
+        $("#categoryBoxId").val(id);
+        $("#categoryBoxCategory").val(category);
+    }
+</script>
+<script type="text/template" id="categoryBox">
+	<form id="categoryForm" action="${ctx}/act/model/updateCategory" method="post" enctype="multipart/form-data"
+		  class="layui-form" style="text-align: center;" onsubmit="layer.load(0, {shade: false});">
+		<input id="categoryBoxId" type="hidden" name="id" value="" />
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">分类：</label>
+				<div class="layui-input-inline">
+					<select id="categoryBoxCategory" name="category">
+						<option value="">无分类</option>
+						<#options items="${@DictUtils.getDictList('act_category')}" value=""/>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<input id="categorySubmit" class="layui-btn btn-primary" type="submit" value="保存"/>　
+			</div>
+		</div>　
+	</form>
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li class="layui-this"><a href="${ctx}/act/model/">模型管理</a></li>
+		<li><a href="${ctx}/act/model/create">新建模型</a></li>
+	</ul>
+	<div class="layui-tab-content">
+		<form id="searchForm" action="${ctx}/act/model/" method="post" class="layui-form">
+			<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+			<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+			<div class="layui-input-inline">
+				<select id="category" name="category" class="input-medium">
+					<option value="">全部分类</option>
+					<#options items="${@DictUtils.getDictList('act_category')}" value="${category}"/>
+				</select>
+			</div>
+			<div class="layui-input-inline">
+				  <button class="layui-btn layui-btn-sm" lay-filter="*" lay-submit>查询</button>
+				</div>
+		</form>
+		<#message content="${message!}"/>
+		<table class="layui-table" >
+			<thead>
+				<tr>
+					<th style="text-align:center">流程分类</th>
+					<th style="text-align:center">模型ID</th>
+					<th style="text-align:center">模型标识</th>
+					<th style="text-align:center">模型名称</th>
+					<th style="text-align:center">版本号</th>
+					<th style="text-align:center">创建时间</th>
+					<th style="text-align:center">最后更新时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<%for(model in page.list){%>
+					<tr>
+						<td><a href="javascript:updateCategory('${model.id}', '${model.category}')" title="设置分类">${@DictUtils.getDictLabel(model.category,'act_category','无分类')}</a></td>
+						<td>${model.id}</td>
+						<td>${model.key}</td>
+						<td>${model.name}</td>
+						<td><b title='流程版本号'>V: ${model.version}</b></td>
+						<td>${model.createTime,dateFormat="yyyy-MM-dd HH:mm:ss"}</td>
+						<td>${model.lastUpdateTime,dateFormat="yyyy-MM-dd HH:mm:ss"}</td>
+						<td>
+							<a class="layui-btn layui-btn-xs" href="${ctxPath}/act/process-editor/modeler.jsp?modelId=${model.id}" target="_blank">编辑</a>
+							<a class="layui-btn layui-btn-xs" href="${ctx}/act/model/deploy?id=${model.id}" onclick="return confirmx('确认要部署该模型吗？', this.href)">部署</a>
+							<a class="layui-btn layui-btn-xs" href="${ctx}/act/model/export?id=${model.id}" target="_blank">导出</a>
+							<a class="layui-btn layui-btn-xs layui-btn-danger" href="${ctx}/act/model/delete?id=${model.id}" onclick="return confirmx('确认要删除该模型吗？', this.href)">删除</a>
+						</td>
+					</tr>
+				<%}%>
+			</tbody>
+		</table>
+		<div class="pagination">${page}</div>
+	</div>
+</div>
+<%}%>

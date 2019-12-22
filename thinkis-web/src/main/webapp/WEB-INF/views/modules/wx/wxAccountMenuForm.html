@@ -1,0 +1,115 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm"  action="${ctx}/wx/wxAccountMenu/save"  method="post" class="layui-form">
+			<input type="hidden" name="id" value="${wxAccountMenu.id}"/>
+			<input type="hidden" name="groupId" value="1"/>
+			<input type="hidden" name="pubid" value="${wxAccountMenu.pubid}"/>
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-body">
+						<div class="layui-form-item">
+							<label class="layui-form-label">菜单键值</label>
+							<div class="layui-input-block">
+								<input name="eventKey" value="${wxAccountMenu.eventKey}" maxlength="40" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label"><font color="#FF0000"> * </font>菜单名称</label>
+							<div class="layui-input-block">
+								<input name="name" value="${wxAccountMenu.name}" maxlength="40" class="layui-input" lay-verify="required"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">上级菜单</label>
+							<div class="layui-input-block">
+								<#treeselect id="parent" name="parent.id" value="${wxAccountMenu.parent.id!}" labelName="parent.name" labelValue="${wxAccountMenu.parent.name!}"
+								title="上级菜单" url="/wx/wxAccountMenu/treeData" extId="${wxAccountMenu.id}" module="${wxAccountMenu.pubid}" cssClass="" allowClear="true"/>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<label class="layui-form-label">排序</label>
+							<div class="layui-input-block">
+								<input name="sort" value="${wxAccountMenu.sort}" maxlength="11" class="layui-input"/>
+							</div>
+						</div>
+						<div class="layui-form-item" pane="" >
+							<label class="layui-form-label">菜单类型</label>
+							<div class="layui-input-block">
+								<input type="radio" name="type" value="view" <%if('view'==wxAccountMenu.type){%>checked<%}%> title="网页链接" lay-filter="type" >
+								<input type="radio" name="type" value="click" <%if('click'==wxAccountMenu.type){%>checked<%}%> title="点击事件" lay-filter="type">
+							</div>
+						</div>
+						<div class="layui-form-item" pane="" id="IS_OAUTH">
+							<label class="layui-form-label">是否需授权</label>
+							<div class="layui-input-block">
+								<#radio name="oauth" items="${@DictUtils.getDictList('yes_no')}" value="${wxAccountMenu.oauth}" />
+							</div>
+						</div>
+						<div class="layui-form-item" id="VIEW_URL">
+							<label class="layui-form-label">访问URL</label>
+							<div class="layui-input-block">
+								<input name="viewUrl" value="${wxAccountMenu.viewUrl}" maxlength="2000" class="layui-input "/>
+							</div>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block" style="display: none;">
+					<%if(shiro.hasPermission("sys:user:edit")){%>
+					<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+					<%}%>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    top.layer.close(index);
+                    top.layer.msg(result.msg);
+                    layer.closeAll("iframe");
+                    //刷新父页面
+                    parent.location.reload();
+                }
+            });
+            return false;
+        })
+        var type = $("input[name='type']:checked").val();
+        if(type=='click'){
+            $('#VIEW_URL').hide();$('#IS_OAUTH').hide();
+        }else{
+            $('#VIEW_URL').show();$('#IS_OAUTH').show();
+        };
+        form.on('radio(type)', function(data){
+            console.log(data.elem); //得到radio原始DOM对象
+            console.log(data.value); //被点击的radio的value值
+            if(data.value=='click'){
+                $('#VIEW_URL').hide();$('#IS_OAUTH').hide();
+            }else{
+                $('#VIEW_URL').show();$('#IS_OAUTH').show();
+            }
+        });
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

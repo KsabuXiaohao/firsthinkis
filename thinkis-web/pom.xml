@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>com.thinkis</groupId>
+    <artifactId>firsthinkis</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>thinkis-web</artifactId>
+  <packaging>war</packaging>
+  
+  <name>thinkis-web</name>
+  
+  <dependencies>
+    <dependency>
+		<groupId>com.thinkis</groupId>
+		<artifactId>thinkis-core</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+  	<dependency>
+	  	<groupId>com.thinkis</groupId>
+	  	<artifactId>thinkis-cms</artifactId>
+	  	<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+	<dependency>
+		<groupId>com.thinkis</groupId>
+		<artifactId>thinkis-act</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.thinkis</groupId>
+		<artifactId>thinkis-weixin</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.thinkis</groupId>
+		<artifactId>thinkis-api</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>com.thinkis</groupId>
+		<artifactId>thinkis-gen</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+  	<dependency>
+	  	<groupId>com.thinkis</groupId>
+	  	<artifactId>thinkis-miniapp</artifactId>
+	  	<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+	  <dependency>
+		  <groupId>junit</groupId>
+		  <artifactId>junit</artifactId>
+		  <version>4.12</version>
+		  <scope>test</scope>
+	  </dependency>
+	  <dependency>
+		  <groupId>junit</groupId>
+		  <artifactId>junit</artifactId>
+		  <version>4.12</version>
+		  <scope>test</scope>
+	  </dependency>
+  </dependencies>
+  
+  <build>
+  	<filters>
+		<filter>src/main/filters/${filters.env}.properties</filter>
+	</filters>
+	<resources>
+		<resource>
+			<directory>src/main/resources</directory>
+			<excludes>
+				<exclude>*.properties</exclude>
+			</excludes>
+			<filtering>false</filtering>
+		</resource>
+		<resource>
+			<directory>src/main/resources</directory>
+			<includes>
+				<include>*.properties</include>
+			</includes>
+			<filtering>true</filtering>
+		</resource>
+	</resources>
+	  <!--<plugins>
+		  <plugin>
+		  	<groupId>org.apache.maven.plugins</groupId>
+		  	<artifactId>maven-war-plugin</artifactId>
+		  	<version>3.0.0</version>
+		  	<configuration>
+				<packagingExcludes>WEB-INF/web.xml</packagingExcludes>
+				<failOnMissingWebXml>false</failOnMissingWebXml>
+				<overlays>
+				  <overlay>
+					  <groupId>com.thinkis</groupId>
+					  <artifactId>thinkis-template</artifactId>
+				  </overlay>
+			  </overlays>
+		  	</configuration>
+		  </plugin>
+	  </plugins>-->
+  </build>
+
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			 <properties>
+				<filters.env>dev</filters.env>
+			</properties>
+		</profile>
+		<profile>
+			<id>test</id>
+			<!-- <activation>
+				<activeByDefault>true</activeByDefault>
+			</activation> -->
+			<properties>
+				<filters.env>test</filters.env>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<!-- <activation>
+				<activeByDefault>true</activeByDefault>
+			</activation> -->
+			<properties>
+				<filters.env>prod</filters.env>
+			</properties>
+		</profile>
+	</profiles>
+</project>

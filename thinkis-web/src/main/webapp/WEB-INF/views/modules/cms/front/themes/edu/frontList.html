@@ -1,0 +1,57 @@
+<% layout("/modules/cms/front/themes/edu/common/layout.html",{nav:category.id}){ %>
+
+<div class="site-banner">
+    <div class="site-banner-bg layui-hide-xs" style="background-image: url('${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/pop-banner-pc.jpg'); background-size: cover;">
+    </div>
+    <div class="site-banner-main layui-hide-md layui-hide-lg ">
+        <div class="site-zfj">
+            <i class="layui-icon" style="color: #fff; color: rgba(255,255,255,.7);">&#xe7ae;</i>
+        </div>
+        <%
+        var topNews = @CmsUtils.getArticleList(site.id, "1003", 1, '');
+        for(article in topNews){
+        %>
+        <div class="layui-anim site-desc layui-hide-lg layui-hide-md ">
+            <h1 style="color: white;font-size: 20px;">${article.title!}</h1>
+            <p style="color: white;font-size: 14px;margin-top: 5px;" class="layui-hide-xs">度身定制课程，限量报名</p>
+        </div>
+        <div class="site-download">
+            <a  href="${article.url}"
+                class="layui-inline site-down" style="color: #fff;">
+                <cite class="layui-icon">&#xe609;</cite>
+                我要报名
+            </a>
+        </div>
+        <%}%>
+    </div>
+</div>
+
+<div class="ny-title">
+    <h5><i>培训场馆</i></h5>
+    <span>Train Venue</span>
+    <p>
+        我们不仅教篮球，更注重孩子的性格
+    </p>
+</div>
+<div class="kc-index" style="margin-bottom: 25px;">
+    <div class="centerbox ingfd clearfix">
+        <%if(category.module == 'article'){%>
+        <%for(course in page.list){%>
+        <a href="${course.url}">
+            <dl>
+                <dt>
+                    <img src="${course.image}"/><i></i>
+                </dt>
+                <dd>
+                    <p style="font-size: 14px;">${course.title}</p>
+                    <p style="font-size: 14px;">
+                        ${course.description}
+                    </p>
+                </dd>
+            </dl>
+        </a>
+        <%}%>
+        <%}%>
+    </div>
+</div>
+<% } %>

@@ -1,0 +1,115 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    $(document).ready(function() {
+
+    });
+    /**
+     * 签收任务
+     */
+    function claim(taskId) {
+        $.get('${ctx}/act/task/claim' ,{taskId: taskId}, function(data) {
+            if (data == 'true'){
+                layer.msg('签收完成');
+                location = '${ctx}/act/task/todo/';
+            }else{
+                layer.msg('签收失败');
+            }
+        });
+    }
+
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li class="layui-this"><a href="${ctx}/act/task/todo/">待办任务</a></li>
+		<li><a href="${ctx}/act/task/historic/">已办任务</a></li>
+		<li><a href="${ctx}/act/task/process/">新建任务</a></li>
+	</ul>
+	<div class="layui-tab-content">
+	<form id="searchForm" action="${ctx}/act/task/todo/" method="get" class="layui-form">
+		<div class="layui-input-inline">
+			<label class="layui-form-label">流程类型：</label>
+			<div class="layui-input-inline">
+				<select path="procDefKey" class="input-medium">
+					<option value="" label="全部流程"/>
+					<#options items="${@DictUtils.getDictList('act_type')}" value=""/>
+				</select>
+			</div>
+		</div>
+		
+		<div class="layui-input-inline">
+			<label class="layui-form-label">创建时间：</label>
+				<div class="layui-input-inline" style="width: 350px">
+					<div class="layui-input-inline">
+						<input id="beginDate"  name="beginDate"  type="text" readonly="readonly" maxlength="20" class="layui-input Wdate" style="width:163px;"
+							value="${act.beginDate,dateFormat='yyyy-MM-dd'}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+					</div> -- 
+					<div class="layui-input-inline">
+						<input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20" class="layui-input Wdate" style="width:163px;"
+							value="${act.endDate,dateFormat='yyyy-MM-dd'}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+					</div>
+				</div>
+		</div>
+		
+		<div class="layui-input-inline">
+              <button class="layui-btn  layui-btn-sm" lay-filter="*" lay-submit>查询</button>
+        </div>
+			
+	</form>
+	<#message content="${message!}"/>
+	<table id="contentTable" class="layui-table" >
+		<thead>
+			<tr>
+				<th style="text-align:center">标题</th>
+				<th style="text-align:center">当前环节</th>
+				<th style="text-align:center">流程名称</th>
+				<th style="text-align:center">流程版本</th>
+				<th style="text-align:center">创建时间</th>
+				<th style="text-align:center">操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%
+				for(act in list){
+					var task = act.task;
+					var vars = act.vars;
+					var procDef = act.procDef;
+					var status = act.status;
+			%>
+				<tr>
+					<td style="text-align:center">
+						<%if(isEmpty(task.assignee)){%>
+							<a href="javascript:claim('${task.id}');" title="签收任务">${@StringUtils.abbr(isNotEmpty(act.vars.map.title)? act.vars.map.title : task.id, 60)}</a>
+						<%}else{%>
+							<a href="${ctx}/act/task/form?taskId=${task.id}&taskName=${@Encodes.urlEncode(task.name)}&taskDefKey=${task.taskDefinitionKey}&procInsId=${task.processInstanceId}&procDefId=${task.processDefinitionId}&status=${status}">${@StringUtils.abbr(isNotEmpty(vars.map.title) ? vars.map.title : task.id, 60)}</a>
+						<%}%>
+					</td>
+					<td style="text-align:center">
+						<a target="_blank" href="${ctxPath}/act/diagram-viewer?processDefinitionId=${task.processDefinitionId}&processInstanceId=${task.processInstanceId}">${task.name}</a>
+					</td>
+					<td style="text-align:center">${procDef.name}</td>
+					<td style="text-align:center"><b title='流程版本号'>V: ${procDef.version}</b></td>
+					<td style="text-align:center">${task.createTime,dateFormat="yyyy-MM-dd HH:mm:ss"}</td>
+					<td style="text-align:center">
+						<%if(isEmpty(task.assignee)){%>
+							<a class="layui-btn layui-btn-xs" href="javascript:claim('${task.id}');">签收任务</a>
+						<%}else{%>
+							<a class="layui-btn layui-btn-xs" href="${ctx}/act/task/form?taskId=${task.id}&taskName=${@Encodes.urlEncode(task.name)}&taskDefKey=${task.taskDefinitionKey}&procInsId=${task.processInstanceId}&procDefId=${task.processDefinitionId}&status=${status}">任务办理</a>
+						<%}%>
+						<%if(shiro.hasPermission("act:process:edit")){%>
+							<%if(isEmpty(task.executionId)){%>
+								<a class="layui-btn layui-btn-xs" href="${ctx}/act/task/deleteTask?taskId=${task.id}&reason=" onclick="return promptx('删除任务','删除原因',this.href);">删除任务</a>
+							<%}%>
+						<%}%>
+						<a class="layui-btn layui-btn-xs" target="_blank" href="${ctxPath}/act/diagram-viewer?processDefinitionId=${task.processDefinitionId}&processInstanceId=${task.processInstanceId}">跟踪</a>
+					</td>
+				</tr>
+			<%}%>
+		</tbody>
+	</table>
+	</div>
+</div>
+<%}%>

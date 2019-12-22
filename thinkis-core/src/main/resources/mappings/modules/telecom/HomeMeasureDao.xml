@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.telecom.dao.HomeMeasureDao">
+
+	
+	<select id="findList" resultType="HomeMeasure">
+		select date_format(savetime,'%Y-%m-%d') date,location,CONCAT(floor(avg(signalpower))) signavg from home_measure
+		where 1=1
+		<if test="sdate != null and sdate != ''">
+			and date_format(savetime, '%Y-%m-%d' )&gt;=#{sdate}
+		</if>
+		<if test="edate != null and edate != ''">
+			and date_format(savetime, '%Y-%m-%d' )&lt;=#{edate}
+		</if>
+		GROUP BY date,location ORDER BY date desc
+	</select>
+	<select id="getHomeMeasure" resultType="HomeMeasure">
+		select * from home_measure
+		where 1=1
+		<if test="sdate != null and sdate != ''">
+			and date_format(savetime, '%Y-%m-%d' )&gt;=#{sdate}
+		</if>
+		<if test="edate != null and edate != ''">
+			and date_format(savetime, '%Y-%m-%d' )&lt;=#{edate}
+		</if>
+		order by savetime desc
+	</select>
+	<select id="findListById" resultType="HomeMeasure">
+		select date_format(c.savetime,'%Y-%m-%d') date,c.location,CONCAT(floor(avg(c.signalpower))) signavg from sys_office a
+		left join device b on a.id = b.companyid left join home_measure c on b.meid = c.meid
+		where a.id = #{id}
+		<if test="sdate != null and sdate != ''">
+			and date_format(c.savetime, '%Y-%m-%d' )&gt;=#{sdate}
+		</if>
+		<if test="edate != null and edate != ''">
+			and date_format(c.savetime, '%Y-%m-%d' )&lt;=#{edate}
+		</if>
+		GROUP BY date,c.location ORDER BY date desc
+	</select>
+	<select id="getNumberList" resultType="HomeMeasure">
+		select date_format(savetime,'%Y-%m-%d') date,location,count(location) textnum  from home_measure
+		where 1=1
+		<if test="sdate != null and sdate != ''">
+			and date_format(savetime, '%Y-%m-%d' )&gt;=#{sdate}
+		</if>
+		<if test="edate != null and edate != ''">
+			and date_format(savetime, '%Y-%m-%d' )&lt;=#{edate}
+		</if>
+		GROUP BY date,location ORDER BY date desc
+	</select>
+	<select id="getNumberListById" resultType="HomeMeasure">
+		select date_format(c.savetime,'%Y-%m-%d') date,c.location,count(c.location) textnum from sys_office a
+		left join device b on a.id = b.companyid left join home_measure c on b.meid = c.meid
+		where a.id = #{id}
+		<if test="sdate != null and sdate != ''">
+			and date_format(c.savetime, '%Y-%m-%d' )&gt;=#{sdate}
+		</if>
+		<if test="edate != null and edate != ''">
+			and date_format(c.savetime, '%Y-%m-%d' )&lt;=#{edate}
+		</if>
+		GROUP BY date,c.location ORDER BY date desc
+	</select>
+</mapper>

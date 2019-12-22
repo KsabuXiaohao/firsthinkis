@@ -1,0 +1,130 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm"  action="${ctx}/sys/sequence/save" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${sequence.id}"/>
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="#FF0000">*</font>键值名称</label>
+								<div class="layui-input-block">
+									<input type="text" name="name" value="${sequence.name}" htmlEscape="false" maxlength="40" class="layui-input" lay-verify="required"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">初始值</label>
+									<div class="layui-input-block">
+										<input type="text" name="currentValue" value="${sequence.currentValue}" htmlEscape="false" maxlength="11" class="layui-input"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">键值递增</label>
+									<div class="layui-input-block">
+										<input type="text" name="incrementValue" value="${sequence.incrementValue}"  htmlEscape="false" maxlength="11" class="layui-input"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">序列键长度</label>
+									<div class="layui-input-block">
+										<input type="text" name="keyLen" value="${sequence.keyLen}"  htmlEscape="false" maxlength="11" class="layui-input"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">序列键修饰</label>
+									<div class="layui-input-block">
+										<input type="text" name="keyFix" value="${sequence.keyFix}"  htmlEscape="false" maxlength="20" class="layui-input"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">修饰类型</label>
+								<div class="layui-input-block">
+									<#radio name="keyFixType"  items="${@DictUtils.getDictList('key_fix_type')}" value="${sequence.keyFixType+''}"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">键值类型</label>
+								<div class="layui-input-block">
+									<#radio name="uuidType"  items="${@DictUtils.getDictList('uuid_type')}" value="${sequence.uuidType+''}"/>
+								</div>
+							</div>
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">长度类型</label>
+								<div class="layui-input-block">
+									<#radio name="keyLenType"  items="${@DictUtils.getDictList('key_len_type')}" value="${sequence.keyLenType+''}"/>
+								</div>
+							</div>
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">序列日期</label>
+								<div class="layui-input-block">
+									<#radio name="keyDateType"  items="${@DictUtils.getDictList('key_date_type')}" value="${sequence.keyDateType+''}"/>
+								</div>
+							</div>
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">递增方式</label>
+								<div class="layui-input-block">
+									<#radio name="keyDateLoop"  items="${@DictUtils.getDictList('key_date_loop')}" value="${sequence.keyDateLoop+''}"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">循环初值</label>
+								<div class="layui-input-block">
+									<input type="text" name="keyDateLoopInit" value="${sequence.keyDateLoopInit}" htmlEscape="false" maxlength="11" class="layui-input"/>
+								</div>
+							</div>
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">日期格式</label>
+								<div class="layui-input-block">
+									<#radio name="keyDateFormat"  items="${@DictUtils.getDictList('key_date_format')}" value="${sequence.keyDateFormat+''}"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block" style="display: none;">
+					<%if(shiro.hasPermission("sys:sequence:edit")){%>
+					<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+					<%}%>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    setTimeout(function () {
+                        top.layer.msg(result.msg);
+                        parent.layer.closeAll();
+                    }, 300);
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

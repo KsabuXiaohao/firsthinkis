@@ -1,0 +1,156 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/WEB-INF/views/include/taglib.jsp"%>
+<html>
+<head>
+	<title>公众号关注人管理</title>
+	<meta name="decorator" content="micro"/>
+</head>
+<body>
+<div class="layui-tab layui-tab-brief">
+	<div style="padding: 10px;">
+		<form:form id="inputForm" modelAttribute="wxAccountFans" action="${ctx}/wx/wxAccountFans/save" method="post" class="layui-form">
+			<form:hidden path="id"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label">openID：</label>
+				<div class="layui-input-inline">
+					<form:input path="openId" htmlEscape="false" maxlength="100" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">关注状态：</label>
+				<div class="layui-input-inline">
+					<form:input path="subscribeStatus" htmlEscape="false" maxlength="1" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">关注时间：</label>
+				<div class="layui-input-inline">
+					<form:input path="subscribeTime" htmlEscape="false" maxlength="50" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">昵称：</label>
+				<div class="layui-input-inline">
+					<form:input path="nickname" htmlEscape="false" maxlength="50" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">性别：</label>
+				<div class="layui-input-inline">
+					<c:forEach items="${fns:getDictList('sex')}" var="dict">
+						<input type="radio" name="sex" value="${dict.value }" title="${dict.label }" <c:if test="${dict.value eq wxAccountFans.sex }">checked=""</c:if> />
+					</c:forEach>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">性别描述：</label>
+				<div class="layui-input-inline">
+					<form:input path="sexDesc" htmlEscape="false" maxlength="10" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">语言：</label>
+				<div class="layui-input-inline">
+					<form:input path="language" htmlEscape="false" maxlength="50" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">国家：</label>
+				<div class="layui-input-inline">
+					<form:input path="country" htmlEscape="false" maxlength="30" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">省：</label>
+				<div class="layui-input-inline">
+					<form:input path="province" htmlEscape="false" maxlength="30" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">市：</label>
+				<div class="layui-input-inline">
+					<form:input path="city" htmlEscape="false" maxlength="30" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">头像：</label>
+				<div class="layui-input-inline">
+					<form:input path="headimgurl" htmlEscape="false" maxlength="255" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">创建时间：</label>
+				<div class="layui-input-inline">
+					<input name="createTime" type="text" readonly="readonly" maxlength="20" class="layui-input Wdate "
+						   value="<fmt:formatDate value="${wxAccountFans.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>"
+					onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:false});"/>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">状态：</label>
+				<div class="layui-input-inline">
+					<c:forEach items="${fns:getDictList('yes_no')}" var="dict">
+						<input type="radio" name="status" value="${dict.value }" title="${dict.label }" <c:if test="${dict.value eq wxAccountFans.status }">checked=""</c:if> />
+					</c:forEach>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">用户单元：</label>
+				<div class="layui-input-inline">
+					<form:input path="unionId" htmlEscape="false" maxlength="20" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">用户群组：</label>
+				<div class="layui-input-inline">
+					<form:input path="groupId" htmlEscape="false" maxlength="20" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">描述：</label>
+				<div class="layui-input-inline">
+					<form:input path="remark" htmlEscape="false" maxlength="50" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">微信id：</label>
+				<div class="layui-input-inline">
+					<form:input path="wxid" htmlEscape="false" maxlength="64" class="layui-input " />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<shiro:hasPermission name="wx:wxAccountFans:edit">
+						<button class="layui-btn" lay-filter="addData" lay-submit>保 存</button>
+					</shiro:hasPermission>
+				</div>
+			</div>
+		</form:form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.on("submit(addData)",function(data){
+            var index = Common.loading('数据提交中，请稍候...');
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    top.layer.close(index);
+                    top.layer.msg(result.msg);
+                    //刷新父页面
+                    parent.location.reload();
+                }
+            });
+            return false;
+        })
+    });
+</script>
+</body>
+</html>

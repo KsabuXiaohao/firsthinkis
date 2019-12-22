@@ -1,0 +1,60 @@
+<% layout("/modules/cms/front/themes/fly/common/layout.html",{nav:'fly'}){ %>
+<%
+var siteId = site.id;
+var categoryId="1003";//分类根id
+var currentId=category.id;//当前分类id
+include("/modules/cms/front/themes/fly/common/column.html",{siteId:siteId,categoryId:categoryId,currentId:currentId}){}
+%>
+<div class="layui-container fly-main">
+    <div class="layui-row layui-col-space15">
+        <div  class="layui-col-md8">
+            <div class="fly-panel" style="margin-bottom: 0;">
+            <ul class="fly-list">
+                <%if(category.module == 'article'){%>
+                <%for(post in page.list){%>
+                <li>
+                    <a href="user/home.html" class="fly-avatar">
+                        <img src="${post.user.photo}" alt="${post.user.name}">
+                    </a>
+                    <h2>
+                        <a class="layui-badge">${post.category.name}</a>
+                        <a href="${post.url}">${post.title}</a>
+                    </h2>
+                    <div class="fly-list-info">
+                        <a href="user/home.html" link>
+                            <cite>${post.user.name}</cite>
+                        </a>
+                        <span>${post.updateDate,dateFormat="yyyy-MM-dd HH:mm:ss"}</span>
+
+                        <span class="fly-list-nums">
+                            <i class="iconfont" title="人气">&#xe60b;</i>${post.hits}
+                            <i class="iconfont icon-pinglun1" title="评论"></i>${post.commentCount}
+                        </span>
+                    </div>
+                    <%if(isNotEmpty(post.posid)){%>
+                    <div class="fly-list-badge">
+                        <span class="layui-badge layui-bg-red">精帖</span>
+                    </div>
+                    <%}%>
+                </li>
+                <%}elsefor{%>
+                <li>暂无数据</li>
+                <%}}%>
+            </ul>
+            </div>
+            <div class="pagination" style="background-color:white;margin-top: 10px;">${page}</div>
+            <script type="text/javascript">
+                function page(n,s){
+                    location="${ctxFront}/list-${category.id}${@Global.getUrlSuffix()}?pageNo="+n+"&pageSize="+s;
+                }
+            </script>
+        </div>
+        <div class="layui-col-md4 layui-hide-xs">
+            <#hotPosts siteId="${site.id}"/>
+            <#images/>
+            <#links panelTitle="友情链接" siteId="${category.site.id}" categoryId="3c6c7cce42684b62a9f03dbb4c938751"/>
+            <#ad/>
+        </div>
+    </div>
+</div>
+<%}%>

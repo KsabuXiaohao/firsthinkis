@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.wx.dao.WxAccountFansDao">
+    
+	<sql id="wxAccountFansColumns">
+		a.id AS "id",
+		a.open_id AS "openId",
+		a.subscribe_status AS "subscribeStatus",
+		a.subscribe_time AS "subscribeTime",
+		a.nickname AS "nickname",
+		a.sex AS "sex",
+		a.sex_desc AS "sexDesc",
+		a.language AS "language",
+		a.country AS "country",
+		a.province AS "province",
+		a.city AS "city",
+		a.headimgurl AS "headimgurl",
+		a.create_time AS "createTime",
+		a.status AS "status",
+		a.union_id AS "unionId",
+		a.group_id AS "groupId",
+		a.remark AS "remark",
+		a.wxid AS "wxid",
+		a.pubid AS "pubid"
+	</sql>
+	
+	<sql id="wxAccountFansJoins">
+	</sql>
+    
+	<select id="get" resultType="WxAccountFans">
+		SELECT 
+			<include refid="wxAccountFansColumns"/>
+		FROM wx_account_fans a
+		<include refid="wxAccountFansJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WxAccountFans">
+		SELECT 
+			<include refid="wxAccountFansColumns"/>
+		FROM wx_account_fans a
+		<include refid="wxAccountFansJoins"/>
+		<where>
+			<if test="openId != null and openId != ''">
+				AND a.open_id = #{openId}
+			</if>
+			<if test="nickname != null and nickname != ''">
+				AND a.nickname = #{nickname}
+			</if>
+			<if test="sex != null and sex != ''">
+				AND a.sex = #{sex}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="pubid != null and pubid != ''">
+				AND a.pubid = #{pubid}
+			</if>
+			<if test="keyword != null and keyword != ''">
+				AND a.nickname LIKE concat('%',#{keyword},'%')
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WxAccountFans">
+		SELECT 
+			<include refid="wxAccountFansColumns"/>
+		FROM wx_account_fans a
+		<include refid="wxAccountFansJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO wx_account_fans(
+			id,
+			open_id,
+			subscribe_status,
+			subscribe_time,
+			nickname,
+			sex,
+			sex_desc,
+			language,
+			country,
+			province,
+			city,
+			headimgurl,
+			create_time,
+			status,
+			union_id,
+			group_id,
+			remark,
+			wxid
+		) VALUES (
+			#{id},
+			#{openId},
+			#{subscribeStatus},
+			#{subscribeTime},
+			#{nickname},
+			#{sex},
+			#{sexDesc},
+			#{language},
+			#{country},
+			#{province},
+			#{city},
+			#{headimgurl},
+			#{createTime},
+			#{status},
+			#{unionId},
+			#{groupId},
+			#{remark},
+			#{wxid}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE wx_account_fans SET 	
+			open_id = #{openId},
+			subscribe_status = #{subscribeStatus},
+			subscribe_time = #{subscribeTime},
+			nickname = #{nickname},
+			sex = #{sex},
+			sex_desc = #{sexDesc},
+			language = #{language},
+			country = #{country},
+			province = #{province},
+			city = #{city},
+			headimgurl = #{headimgurl},
+			create_time = #{createTime},
+			status = #{status},
+			union_id = #{unionId},
+			group_id = #{groupId},
+			remark = #{remark},
+			wxid = #{wxid}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM wx_account_fans
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

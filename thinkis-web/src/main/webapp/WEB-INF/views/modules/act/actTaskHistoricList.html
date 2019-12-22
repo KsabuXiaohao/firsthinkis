@@ -1,0 +1,96 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    $(document).ready(function() {
+
+    });
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+	<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li><a href="${ctx}/act/task/todo/">待办任务</a></li>
+		<li class="layui-this"><a href="${ctx}/act/task/historic/">已办任务</a></li>
+		<li><a href="${ctx}/act/task/process/">新建任务</a></li>
+	</ul>
+	<div class="layui-tab-content">
+	<form id="searchForm" modelAttribute="act" action="${ctx}/act/task/historic/" method="get" class="layui-form">
+		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+		<div class="layui-input-inline">
+			<label class="layui-form-label">流程类型：</label>
+			<div class="layui-input-inline">
+				<select name="procDefKey" class="input-medium">
+					<option value="" label="全部流程"/>
+					<#options items="${@DictUtils.getDictList('act_type')}" value=""/>
+				</select>
+			</div>
+		</div>
+		
+		<div class="layui-input-inline">
+			<label class="layui-form-label">完成时间：</label>
+				<div class="layui-input-inline" style="width: 350px">
+					<div class="layui-input-inline">
+					<input id="beginDate"  name="beginDate"  type="text" readonly="readonly" maxlength="20" class="layui-input Wdate" style="width:163px;"
+						value="${act.beginDate,dateFormat='yyyy-MM-dd'}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+					</div> -- 
+					<div class="layui-input-inline">
+					<input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20" class="layui-input Wdate" style="width:163px;"
+						value="${act.endDate,dateFormat='yyyy-MM-dd'}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'});"/>
+					</div>
+				</div>
+		</div>
+		<div class="layui-input-inline">
+              <button class="layui-btn  layui-btn-sm" lay-filter="*" lay-submit>查询</button>
+        </div>
+		
+	</form>
+	<#message content="${message!}"/>
+	<table id="contentTable" class="layui-table" >
+		<thead>
+			<tr>
+				<th>标题</th>
+				<th>当前环节</th>
+				<th>流程名称</th>
+				<th>流程版本</th>
+				<th>完成时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<%
+				for(act in page.list){
+					var task = act.histTask;
+					var vars = act.vars;
+					var procDef = act.procDef;
+					var status = act.status;
+
+			%>
+				<tr>
+					<td>
+						<a href="${ctx}/act/task/form?taskId=${task.id}&taskName=${@Encodes.urlEncode(task.name)}&taskDefKey=${task.taskDefinitionKey}&procInsId=${task.processInstanceId}&procDefId=${task.processDefinitionId}&status=${status}">${@StringUtils.abbr(isNotEmpty(vars.map.title)? vars.map.title : task.id, 60)}</a>
+					</td>
+					<td>
+						<a target="_blank" href="${ctxPath}/act/diagram-viewer?processDefinitionId=${task.processDefinitionId}&processInstanceId=${task.processInstanceId}">${task.name}</a>
+					</td>
+					<td>${procDef.name}</td>
+					<td><b title='流程版本号'>V: ${procDef.version}</b></td>
+					<td>${task.endTime,dateFormat="yyyy-Mm-dd HH:mm:ss"}</td>
+					<td>
+						<a class="layui-btn layui-btn-sm" href="${ctx}/act/task/form?taskId=${task.id}&taskName=${@Encodes.urlEncode(task.name)}&taskDefKey=${task.taskDefinitionKey}&procInsId=${task.processInstanceId}&procDefId=${task.processDefinitionId}&status=${status}">详情</a>
+					</td>
+				</tr>
+			<%}%>
+		</tbody>
+	</table>
+	<div class="pagination">${page}</div>
+	</div>
+</div>
+<%}%>

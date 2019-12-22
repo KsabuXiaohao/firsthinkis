@@ -1,0 +1,67 @@
+<% layout("/layouts/micro.html",{title:"课程类型管理"}){ %>
+<div class="childrenBody">
+<div class="layui-tab layui-tab-brief">
+	<form id="inputForm"  action="${ctx}/edu/courseType/save" method="post" class="layui-form layui-form-pane">
+		<input type="hidden" name="id" value="${courseType.id!}"/>
+		<div class="layui-form-item">
+			<label class="layui-form-label">类型名称：</label>
+			<div class="layui-input-block">
+				<input name="name" value="${courseType.name!}" htmlEscape="false" maxlength="255" class="layui-input " />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-inline" >
+				<label class="layui-form-label">状态：</label>
+				<div class="layui-input-inline">
+					<#radio name="status" value="${courseType.status!}" items="${@DictUtils.getDictList('data_status')}" />
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">排序：</label>
+				<div class="layui-input-inline">
+					<input name="sort" value="${courseType.sort!}" type="number" class="layui-input " />
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注信息：</label>
+			<div class="layui-input-block">
+				<textarea name="remarks" htmlEscape="false" rows="4" maxlength="255" class="layui-textarea" >${courseType.remarks!}</textarea>
+			</div>
+		</div>
+		<div class="layui-form-item layui-hide">
+	    	<div class="layui-input-block">
+	    		<%if(shiro.hasPermission("edu:courseType:edit")){%>
+      				<button class="layui-btn" lay-filter="addData" id="addData" lay-submit>保 存</button>
+      			<%}%>
+		    </div>
+	  	</div>
+	</form>
+	</div>
+</div>
+	<script>
+		layui.use(['form', 'laydate'], function() {
+			var form = layui.form, laydate = layui.laydate;
+			form.on("submit(addData)",function(data){
+				var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+				var actionUrl = $("#inputForm").attr("action");
+				var formData = $("#inputForm").serialize();//序列化表格内容为字符串  
+			    $.ajax({  
+			        type:'post',      
+			        url:actionUrl,  
+			        data:formData,  
+			        cache:false,  
+			        dataType:'json',  
+			        success:function(result){  
+		        	 	top.layer.close(index);
+			        	top.layer.msg(result.msg);
+				 		parent.layui.layer.closeAll();
+                        //刷新父页面
+                        parent.layui.table.reload("courseTypeListTable");
+			        }  
+			    });
+				return false;
+		 	})
+		});
+	</script>
+<%}%>

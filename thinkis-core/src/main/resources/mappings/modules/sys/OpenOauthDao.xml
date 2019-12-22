@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.sys.dao.OpenOauthDao">
+    
+	<sql id="openOauthColumns">
+		a.id AS "id",
+		a.access_token AS "accessToken",
+		a.expire_in AS "expireIn",
+		a.oauth_code AS "oauthCode",
+		a.oauth_type AS "oauthType",
+		a.oauth_user_id AS "oauthUserId",
+		a.refresh_token AS "refreshToken",
+		a.user_id AS "user.id",
+		u8.name AS "user.name"
+	</sql>
+	
+	<sql id="openOauthJoins">
+		LEFT JOIN sys_user u8 ON u8.id = a.user_id
+	</sql>
+    
+	<select id="get" resultType="OpenOauth">
+		SELECT 
+			<include refid="openOauthColumns"/>
+		FROM sys_user_open_oauth a
+		<include refid="openOauthJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="OpenOauth">
+		SELECT 
+			<include refid="openOauthColumns"/>
+		FROM sys_user_open_oauth a
+		<include refid="openOauthJoins"/>
+		<where>
+			
+			<if test="oauthType != null and oauthType != ''">
+				AND a.oauth_type = #{oauthType}
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.user_id = #{user.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="OpenOauth">
+		SELECT 
+			<include refid="openOauthColumns"/>
+		FROM sys_user_open_oauth a
+		<include refid="openOauthJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_user_open_oauth(
+			id,
+			access_token,
+			expire_in,
+			oauth_code,
+			oauth_type,
+			oauth_user_id,
+			refresh_token,
+			user_id
+		) VALUES (
+			#{id},
+			#{accessToken},
+			#{expireIn},
+			#{oauthCode},
+			#{oauthType},
+			#{oauthUserId},
+			#{refreshToken},
+			#{user.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_user_open_oauth SET 	
+			access_token = #{accessToken},
+			expire_in = #{expireIn},
+			oauth_code = #{oauthCode},
+			oauth_type = #{oauthType},
+			oauth_user_id = #{oauthUserId},
+			refresh_token = #{refreshToken},
+			user_id = #{user.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM sys_user_open_oauth
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

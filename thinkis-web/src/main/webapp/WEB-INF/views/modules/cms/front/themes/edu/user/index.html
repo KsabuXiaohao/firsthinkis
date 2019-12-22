@@ -1,0 +1,40 @@
+<%
+var headerPart = {
+%>
+<style type="text/css">
+  body{background-color: #F2F2F2!important;}
+</style>
+<% }; %>
+<% layout("/modules/cms/front/themes/edu/common/layout.html",{headerSection:headerPart,nav:'fly'}){ %>
+<div class="layui-container fly-marginTop fly-user-main">
+  <% include("/modules/cms/front/themes/edu/common/user-nav.html",{nav:'userIndex'}){} %>
+
+  <div class="fly-panel fly-panel-user" pad20>
+    <div class="layui-tab layui-tab-brief" lay-filter="user">
+      <ul class="layui-tab-title" id="LAY_mine">
+        <li data-type="mine-jie" lay-id="index" class="layui-this">我发的帖</li>
+      </ul>
+      <div class="layui-tab-content" style="padding: 20px 0;">
+        <div class="layui-tab-item layui-show">
+          <ul class="mine-view jie-row">
+            <%
+            var posts = @CmsUtils.getArticleList(site.id,'809df88939b047c3b78d6bf6ef26acd6',10,"myArticles:1");
+            for(var post in posts){
+            %>
+            <li>
+              <a class="jie-title" href="${post.url}" target="_blank">${post.title}</a>
+              <i>${post.updateDate,dateFormat="yyyy/MM/dd HH:mm:ss"}</i>
+              <em>${post.hits}阅/${post.commentCount}答</em>
+            </li>
+            <%}%>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    layui.cache.page = 'user';
+</script>
+<%}%>

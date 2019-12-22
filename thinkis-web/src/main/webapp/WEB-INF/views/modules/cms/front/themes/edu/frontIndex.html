@@ -1,0 +1,324 @@
+﻿<% layout("/modules/cms/front/themes/edu/common/layout.html",{nav:'index'}){ %>
+
+<!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+<!--[if lt IE 9]>
+<script src="${ctxStatic}/modules/cms/front/themes/edu/js/html5.min.js"></script>
+<script src="${ctxStatic}/modules/cms/front/themes/edu/js/respond.min.js"></script>
+<![endif]-->
+<div class="layui-carousel layui-hide-xs" id="ad">
+    <div carousel-item>
+        <!--首页轮播图-->
+        <%
+        var ads = @CmsUtils.getArticleList(site.id, "1003", 1, '');
+        for(article in ads){
+        %>
+        <div style="<%if(isEmpty(article.image)){%>background-color: #393D49;<%}else{%>background-image: url(${article.image}); background-repeat:no-repeat; background-size:100% 100%;-moz-background-size:100% 100%;<%}%>">
+            <%if(isEmpty(article.image)){%>
+            <div class="ad">
+                <p class="ad_title">${article.title!}</p>
+                <P class="ad_body" style="margin-top: 10px;">${article.description!}</p>
+                <p class="ad_bottom ">度身定制课程，限量报名</p>
+                <p class="ad_bottom site-download" style="margin-top: 40px;">
+                    <a  href="${article.url}"  class="layui-inline site-down" style="color: #fff;">
+                        <cite class="layui-icon">&#xe609;</cite>
+                        我要报名
+                    </a>
+                </p>
+            </div>
+            <%}%>
+        </div>
+        <%}%>
+    </div>
+</div>
+<div class="site-banner layui-hide-md layui-hide-lg ">
+    <div class="site-banner-main ">
+        <div class="site-zfj">
+            <i class="layui-icon" style="color: #fff; color: rgba(255,255,255,.7);">&#xe7ae;</i>
+        </div>
+        <%
+        var topNews = @CmsUtils.getArticleList(site.id, "1003", 1, '');
+        for(article in topNews){
+        %>
+        <div class="layui-anim site-desc layui-hide-lg layui-hide-md ">
+            <h1 style="color: white;font-size: 20px;">${article.title!}</h1>
+            <p style="color: white;font-size: 14px;margin-top: 5px;" class="layui-hide-xs">度身定制课程，限量报名</p>
+        </div>
+        <div class="site-download">
+            <a  href="${article.url}"
+               class="layui-inline site-down" style="color: #fff;">
+                <cite class="layui-icon">&#xe609;</cite>
+                我要报名
+            </a>
+        </div>
+        <%}%>
+    </div>
+</div>
+<div class="ny-title">
+    <h5><i><a href="${ctxFront}/list-1004.html">培训场馆</a></i></h5>
+    <span>Train Venue</span>
+    <p>
+        我们不仅教篮球，更注重孩子的性格
+    </p>
+</div>
+<div class="kc-index">
+    <div class="centerbox ingfd clearfix">
+        <%
+        var courses = @CmsUtils.getArticleList(site.id, "1004", 4, '');
+        for(course in courses){
+        %>
+        <a href="${course.url}">
+            <dl>
+                <dt>
+                    <img src="${course.image}"/><i></i>
+                </dt>
+                <dd>
+                    <p style="font-size: 18px;">${course.title}</p>
+                    <p style="font-size: 14px;">
+                        ${course.description}
+                    </p>
+                </dd>
+            </dl>
+        </a>
+        <%}%>
+    </div>
+</div>
+
+<div class="index-news">
+    <div class="centerbox ingfd clearfix">
+        <div class="news-left" style="width: 99%;">
+            <div class="news-title"><p>新闻中心</p><span>News Center</span><a href="${ctxFront}/list-1005.html">更多&gt;&gt;</a></div>
+            <%
+            var news = @CmsUtils.getArticleList(site.id, "1005", 1, 'posid:2');
+            for(new in news){
+            %>
+            <a href="${new.url}">
+                <dl class="news-1">
+                    <dt style="width: 24%;">
+                        <img src="${new.image}"/>
+                    </dt>
+                    <dd style="width: 75%;">
+                        <h5 title="${new.title}">${new.title}</h5>
+                        <p style="height: 65px;">${new.description}</p>
+                        <span>发布时间：${new.createDate,dateFormat="yyyy-MM-dd"}</span>
+                    </dd>
+                </dl>
+            </a>
+            <%
+            }
+            %>
+            <div class="news-2">
+                <%
+                var news2 = @CmsUtils.getArticleList(site.id, "1005", 2, 'posid:1');
+                for(new in news2){
+                %>
+                <a href="${new.url}">
+                    <dl>
+                        <dt>
+                            <span>${new.createDate,dateFormat="dd"}</span>
+                            <p style="font-size: 12px;">${new.createDate,dateFormat="yyyy-MM"}</p>
+                        </dt>
+                        <dd>
+                            <span style="font-size: 14px;color: #1fabe8;display: block;overflow: hidden;" title="${new.title}">${new.title}</span>
+                            <i>${new.createDate,dateFormat="yyyy-MM-dd"}</i>
+                            <p>${new.description}</p>
+                        </dd>
+                    </dl>
+                </a>
+                <%}%>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="ny-title">
+    <h5><i>师资力量</i></h5>
+    <span>Teacher strength</span>
+    <p>
+        选择我们的课程，是您取得成功的重大决定
+    </p>
+</div>
+<div class="teacher">
+    <div class="centerbox clearfix teacherbox owl-carousel">
+        <%
+        var teachers = @CmsUtils.getArticleList(site.id, "1008", 10, '');
+        for(teacher in teachers){
+        %>
+        <a href="${teacher.url}">
+            <dl>
+                <dt>
+                    <img src="${teacher.image}"/>
+                </dt>
+                <dd class="teach-1">
+                    <span>${teacher.title}</span>
+                    <p>${teacher.keywords}</p>
+                </dd>
+                <dd class="teach-2"><p>${teacher.description}</p></dd>
+                <dd class="teach-3">查看详情</dd>
+            </dl>
+        </a>
+        <%}%>
+    </div>
+</div>
+<div class="fenge"></div>
+<div class="zhishi">
+    <div class="centerbox ingfd clearfix">
+        <div class="zhishi-left">
+            <div class="news-title">
+                <p><em class="cur">俱乐部活动</em> / <em>篮球知识</em></p>
+                <a href="${ctxFront}/list-1006.html" class="yuedumore">更多&gt;&gt;</a>
+                <a href="${ctxFront}/list-1007.html" class="zhishimore">更多&gt;&gt;</a>
+            </div>
+            <div class="zhishibox">
+                <div class="zhishi-list">
+                    <%
+                    var news3 = @CmsUtils.getArticleList(site.id, "1006", 3, '');
+                    for(new in news3){
+                    %>
+                    <a href="${new.url}">
+                        <dl>
+                            <dt>
+                                <b>${new.createDate,dateFormat="dd"}</b>
+                                <p>${new.createDate,dateFormat="MM"}-</p>
+                            <dd>
+                                <b title="${new.title}">${new.title}</b>
+                                <i>${new.createDate,dateFormat="yyyy-MM-dd"}</i>
+                                <p>${new.description}</p>
+                            </dd>
+                        </dl>
+                    </a>
+                    <%}%>
+                </div>
+                <div class="zhishi-list">
+
+                    <%
+                    var news4 = @CmsUtils.getArticleList(site.id, "1007", 3, '');
+                    for(new in news4){
+                    %>
+                    <a href="${new.url}">
+                        <dl>
+                            <dt>
+                                <b>${new.createDate,dateFormat="dd"}</b>
+                                <p>${new.createDate,dateFormat="MM"}-</p>
+                            <dd>
+                                <b title="${new.title}">${new.title}</b>
+                                <i>${new.createDate,dateFormat="yyyy-MM-dd"}</i>
+                                <p>${new.description}</p>
+                            </dd>
+                        </dl>
+                    </a>
+                    <%}%>
+
+                </div>
+            </div>
+        </div>
+        <div class="zhishi-right">
+            <div class="news-title"><p>学员风采</p><span>PHOTO</span><a href="${ctxFront}/list-1009.html">更多&gt;&gt;</a></div>
+            <div class="student-list">
+                <ul>
+                    <%
+                    var students = @CmsUtils.getArticleList(site.id, "1009", 3, '');
+                    for(student in students){
+                    %>
+                    <li>
+                        <img src="${student.image}"/>
+                    </li>
+                    <%}%>
+                </ul>
+                <div class="student-i"><i class="cur"></i><i></i><i></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<div class="kehu">
+    <div class="centerbox ingfd clearfix">
+        <div class="news-title"><p>合作客户</p><span>CUSTOMER</span></div>
+        <div class="fenge"></div>
+        <div class="kh-list">
+
+            <a href="http://www.zuiaishiting.com/radio/sh/12.html" title="合作客户" target="_blank"><img
+                    src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/kehu-1.jpg"/></a>
+
+            <a href="http://www.nike.com/cn/zh_cn/" title="合作客户" target="_blank"><img
+                    src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/kehu-2.jpg"/></a>
+
+            <a href="http://www.dhs-sports.com/" title="合作客户" target="_blank"><img
+                    src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/kehu-3.jpg"/></a>
+
+            <a href="http://www.jiaolianbao.cn/" title="合作客户" target="_blank"><img
+                    src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/kehu-4.jpg"/></a>
+
+            <a href="http://www.wa5.com/" title="合作客户" target="_blank"><img
+                    src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/kehu-5.jpg"/></a>
+
+            <a href="http://www.zamst.com.cn/" title="合作客户" target="_blank"><img
+                    src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/kehu-6.jpg"/></a>
+
+        </div>
+    </div>
+</div>-->
+<div class="address clearfix">
+    <div class="centerbox ingfd clearfix">
+        <div class="add-title">
+            <b>联系我们</b>
+            <p>
+                相信我们，专注国内职业篮球教育领域，有需要及时联系！
+            </p>
+        </div>
+        <ul class="add-list">
+            <li>
+                <a href="${ctxFront}/list-1011.html">
+                    <i><img src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/add-1.png"/></i>
+                    <p>
+                        深圳市福田区
+                    </p>
+                </a>
+            </li>
+            <li>
+                <i><img src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/add-2.png"/></i>
+                <p>
+                    AM：9:00-PM：21:00 <br/>
+                    热线：13430807270
+                </p>
+            </li>
+            <li>
+                <a href="mailto:383516619@qq.com">
+                    <i><img src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/add-3.png"/></i>
+                    <p>383516619@qq.com</p>
+                </a>
+            </li>
+            <li class="xjs2">
+                <a href="http://wpa.qq.com/msgrd?v=3&uin=383516619&site=qq&menu=yes" target="_blank">
+                    <i><img src="${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/add-4.png"/></i>
+                    <span>在线咨询</span>
+                </a>
+            </li>
+        </ul>
+
+    </div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $('.teacherbox').owlCarousel({
+            items: 4,
+            autoPlay: true,
+            navigation: true,
+            navigationText: ["",""],
+            scrollPerPage: true
+        });
+    });
+    layui.use('carousel', function(){
+        var carousel = layui.carousel;
+        //建造实例
+        carousel.render({
+            elem: '#ad'
+            ,width: '100%' //设置容器宽度
+            ,height:'400px'
+            ,arrow: 'always' //始终显示箭头
+            //,anim: 'updown' //切换动画方式
+        });
+    });
+</script>
+<% } %>

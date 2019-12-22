@@ -1,0 +1,117 @@
+<% layout("/layouts/micro.html"){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li ><a href="${ctx}/sys/role/">角色列表</a></li>
+		<li class="layui-this"><a href="${ctx}/sys/role/assign?id=${role.id}"><%if(shiro.hasPermission("sys:role:edit")){%>角色分配<%}%><%if(shiro.lacksPermission("sys:role:edit")){%>人员列表<%}%></a></li>
+	</ul>
+	<div class="layui-tab-content">
+		<div class="layui-row">
+			<div class="layui-col-md4">
+				<div class="layui-input-block">
+					<label class="layui-form-label">角色名称:</label>
+					<div class="layui-form-mid">${role.name}</div>
+				</div>
+			</div>
+			<div class="layui-col-md4">
+				<div class="layui-input-md">
+					<label class="layui-form-label">归属机构:</label>
+					<div class="layui-form-mid">${role.office.name}</div>
+				</div>
+			</div>
+			<div class="layui-col-md4">
+				<div class="layui-input-block">
+					<label class="layui-form-label">英文名称:</label>
+					<div class="layui-form-mid">${role.enname}</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-row">
+			<div class="layui-col-md4">
+				<div class="layui-input-block">
+					<label class="layui-form-label">角色类型:</label>
+					<div class="layui-form-mid">${role.roleType}</div>
+				</div>
+			</div>
+			<div class="layui-col-md4">
+				<div class="layui-input-md">
+					<label class="layui-form-label">数据范围:</label>
+					<div class="layui-form-mid">${@DictUtils.getDictLabel(role.dataScope, 'sys_data_scope', '')}</div>
+				</div>
+			</div>
+		</div>
+		<#message content="${message!}"/>
+		<div class="breadcrumb">
+			<form id="assignRoleForm" action="${ctx}/sys/role/assignrole" method="post" class="hide">
+				<input type="hidden" name="id" value="${role.id}"/>
+				<input id="idsArr" type="hidden" name="idsArr" value=""/>
+			</form>
+			<button id="assignButton"  class="layui-btn layui-btn-sm" lay-filter="*" lay-submit>分配角色</button>
+			<script type="text/javascript">
+                $("#assignButton").click(function(){
+                    layer.open({
+                        type: 2,
+                        title: "分配角色",
+                        shadeClose: true,
+                        shade: 0.3,
+                        area: ['800px','550px'],
+                        content: "${ctx}/sys/role/usertorole?id=${role.id}",
+                        btn: ['确定分配','清除已选', '关闭'],
+                        yes: function(index, layero){
+                            var pre_ids = layero.find('iframe')[0].contentWindow.pre_ids;
+                            var ids = layero.find('iframe')[0].contentWindow.ids;
+                            //nodes = selectedTree.getSelectedNodes();
+                            // 删除''的元素
+                            if(ids[0]==''){
+                                ids.shift();
+                                pre_ids.shift();
+                            }
+                            if(pre_ids.sort().toString() == ids.sort().toString()){
+                                top.layer.msg("未给角色【${role.name}】分配新成员！", {icon: 2});
+                                return false;
+                            };
+                            // 执行保存
+                            layer.load(0, {shade: false});
+                            var idsArr = "";
+                            for (var i = 0; i<ids.length; i++) {
+                                idsArr = (idsArr + ids[i]) + (((i + 1)== ids.length) ? '':',');
+                            }
+                            $('#idsArr').val(idsArr);
+                            $('#assignRoleForm').submit();
+                            return true;
+                            layer.close(index);
+                        },
+                        btn2: function(index, layero){
+                            layero.find('iframe')[0].contentWindow.clearAssign();
+                            return false;
+                        },
+                        btn3: function(index, layero){
+                            layer.close(index);
+                        }
+                    });
+                });
+			</script>
+		</div>
+		<table class="layui-table" >
+			<thead><tr><th>归属公司</th><th>归属部门</th><th>登录名</th><th>姓名</th><th>电话</th><th>手机</th><%if(shiro.hasPermission("sys:user:edit")){%><th>操作</th><%}%></tr></thead>
+			<tbody>
+			<%for(user in userList){%>
+			<tr>
+				<td>${user.company.name}</td>
+				<td>${user.office.name}</td>
+				<td><a href="${ctx}/sys/user/form?id=${user.id}">${user.loginName}</a></td>
+				<td>${user.name}</td>
+				<td>${user.phone}</td>
+				<td>${user.mobile}</td>
+				<%if(shiro.hasPermission("sys:role:edit")){%>
+				<td>
+					<a class="layui-btn layui-btn-xs layui-btn-danger " href="${ctx}/sys/role/outrole?userId=${user.id}&roleId=${role.id}"
+					   onclick="return confirmx('确认要将用户<b>[${user.name}]</b>从<b>[${role.name}]</b>角色中移除吗？', this.href)">移除</a>
+				</td>
+				<%}%>
+			</tr>
+			<%}%>
+			</tbody>
+		</table>
+	</div>
+</div>
+<%}%>

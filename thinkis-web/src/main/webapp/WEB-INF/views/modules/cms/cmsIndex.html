@@ -1,0 +1,31 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody" id="content">
+	<div class="layui-row layui-col-space15">
+		<div class="layui-col-md2">
+			<div class="layui-card">
+				<div id="left" class="layui-card-body" style="padding: 0px;">
+					<iframe id="cmsMenuFrame" name="cmsMenuFrame" src="${ctx}/cms/tree" style="overflow:visible;position: static;"
+							scrolling="yes" frameborder="no" width="100%"></iframe>
+				</div>
+			</div>
+		</div>
+		<div class="layui-col-md10">
+			<div class="layui-card">
+				<div id="right" class="layui-card-body" style="padding: 0px;">
+					<iframe id="cmsMainFrame" name="cmsMainFrame" src="${ctx}/cms/none" style="overflow:visible;position: static;"
+							scrolling="yes" frameborder="no" width="100%"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+    var leftWidth = $("#left").width();// 左侧窗口大小
+    function wSize(){
+        var strs=getWindowSize().toString().split(",");
+        $("#cmsMenuFrame, #cmsMainFrame").height(strs[0]-28);
+        $("#right").width($("body").width()-$("#left").width()-25);
+    }
+</script>
+<script src="${ctxStatic}/common/wsize.min.js" type="text/javascript"></script>
+<%}%>

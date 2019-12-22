@@ -1,0 +1,39 @@
+<% layout("/layouts/micro.html"){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li class="layui-this"><a href="${ctx}/sys/role/">角色列表</a></li>
+		<%if(shiro.hasPermission("sys:role:edit")){%>
+		<li><a href="${ctx}/sys/role/form">角色添加</a></li>
+		<%}%>
+	</ul>
+	<div class="kit-table">
+		<#message content="${message!}"/>
+		<table class="layui-table" >
+			<thead>
+			<tr><th>角色名称</th><th>英文名称</th><th>归属机构</th><th>数据范围</th><%if(shiro.hasPermission("sys:role:edit")){%><th width="150">操作</th><%}%></tr>
+			</thead>
+			<%for(role in list){%>
+			<tr>
+				<td><a href="form?id=${role.id}" class="layui-table-link">${role.name}</a></td>
+				<td><a href="form?id=${role.id}">${role.enname}</a></td>
+				<td>${role.office.name}</td>
+				<td>${@DictUtils.getDictLabel(role.dataScope, 'sys_data_scope', '无')}</td>
+				<%if(shiro.hasPermission("sys:role:edit")){%>
+				<td>
+					<a class="layui-btn layui-btn-xs" href="${ctx}/sys/role/assign?id=${role.id}">分配</a>
+					<%
+					var flag = @DictUtils.getDictValue('是', 'yes_no', '1');
+					var user = @UserUtils.getUser();
+					if((role.sysData==flag && user.admin)||(role.sysData!=flag)){
+					%>
+					<a class="layui-btn layui-btn-xs" href="${ctx}/sys/role/form?id=${role.id}">修改</a>
+					<%}%>
+					<a class="layui-btn layui-btn-xs layui-btn-danger " href="${ctx}/sys/role/delete?id=${role.id}" onclick="return confirmx('确认要删除该角色吗？', this.href)">删除</a>
+				</td>
+				<%}%>
+			</tr>
+			<%}%>
+		</table>
+	</div>
+</div>
+<%}%>

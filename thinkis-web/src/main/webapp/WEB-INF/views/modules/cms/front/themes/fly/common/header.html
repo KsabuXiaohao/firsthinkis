@@ -1,0 +1,75 @@
+<div class="fly-header layui-bg-black">
+  <div class="layui-container">
+    <% if(isNotEmpty(site.logo)){ %>
+    <a class="fly-logo" href="${ctxFront}">
+      <img alt="${site.title}" src="${site.logo}" style="height: 43px;" class="container">
+    </a>
+    <% }else{ %>
+    <a class="fly-logo" style="color: #fff;font-size: 25px;" href="${ctxFront}">${site.title}</a>
+    <% } %>
+    <ul class="layui-nav fly-nav">
+      <li class="layui-nav-item layui-hide-xs <%if(currentNav == 'index'){%>layui-this<%}%>">
+        <a href="${ctxFront}"><i class="iconfont icon-shouye"></i>首页</a>
+      </li>
+      <li class="layui-nav-item layui-hide-xs <%if(currentNav == 'case'){%>layui-this<%}%>">
+        <a href="${ctxFront}/list-1009${@Global.getUrlSuffix()}"><i class="iconfont icon-iconmingxinganli"></i>案例</a>
+      </li>
+      <li class="layui-nav-item layui-hide-xs <%if(currentNav == 'share'){%>layui-this<%}%>">
+        <a href="${ctxFront}/list-1010${@Global.getUrlSuffix()}"><i class="iconfont icon-pinglun"></i>分享</a>
+      </li>
+      <li class="layui-nav-item layui-hide-xs <%if(currentNav == 'fly'){%>layui-this<%}%>">
+        <a href="${ctxFront}/index-fly${@Global.getUrlSuffix()}"><i class="iconfont icon-jiaoliu"></i>交流</a>
+      </li>
+      <li class="layui-nav-item layui-hide-lg layui-hide-md layui-hide-sm" style="margin-right: 5px;">
+        <a href="javascript:;"><i class="iconfont layui-icon-spread-left"></i>导航</a>
+        <dl class="layui-nav-child">
+          <dd class="<%if(currentNav == 'case'){%>layui-this<%}%>">
+            <a href="${ctxFront}/list-1009${@Global.getUrlSuffix()}"><i class="iconfont icon-iconmingxinganli"></i>案例</a>
+          </dd>
+          <dd class="<%if(currentNav == 'share'){%>layui-this<%}%>">
+            <a href="${ctxFront}/list-1010${@Global.getUrlSuffix()}"><i class="iconfont icon-iconmingxinganli"></i>分享</a>
+          </dd>
+          <dd class="<%if(currentNav == 'bbs'){%>layui-this<%}%>">
+            <a href="${ctxFront}/index-fly${@Global.getUrlSuffix()}"><i class="iconfont icon-jiaoliu"></i>交流</a>
+          </dd>
+        </dl>
+      </li>
+    </ul>
+
+    <ul class="layui-nav fly-nav-user">
+      <% var user = @UserUtils.getUser(); if(isEmpty(user.id)){%>
+      <!-- 未登入的状态 -->
+      <li class="layui-nav-item layui-hide-lg layui-hide-md layui-hide-sm">
+        <a class="iconfont icon-touxiang " href="${ctxFront}/login-${site.id}.html"></a>
+      </li>
+      <li class="layui-nav-item layui-hide-xs">
+        <a class="iconfont icon-touxiang layui-hide-xs" href="${ctxFront}/login-${site.id}.html"></a>
+      </li>
+      <li class="layui-nav-item  layui-hide-xs">
+        <a href="${ctxFront}/login-${site.id}.html">登录</a>
+      </li>
+      <li class="layui-nav-item layui-hide-xs">
+        <a href="${ctxFront}/reg-${site.id}.html">注册</a>
+      </li>
+      <% }else{ %>
+      <!-- 登入后的状态 -->
+      <li class="layui-nav-item">
+        <a class="fly-nav-avatar" href="javascript:;">
+          <% if(isEmpty(user.photo)){ %>
+          <img src="${ctxPath}/static/images/default.png">
+          <% }else{ %>
+          <img src="${user.photo}">
+          <% } %>
+          <cite class="layui-hide-xs">&nbsp;${user.name}</cite>
+        </a>
+        <dl class="layui-nav-child">
+          <dd><a href="${ctxFront}/set-${site.id}.html"><i class="layui-icon">&#xe620;</i>我的资料</a></dd>
+          <hr style="margin: 5px 0;">
+          <dd><a href="${ctx}/logout" style="text-align: center;">退出</a></dd>
+        </dl>
+      </li>
+      <% } %>
+    </ul>
+
+  </div>
+</div>

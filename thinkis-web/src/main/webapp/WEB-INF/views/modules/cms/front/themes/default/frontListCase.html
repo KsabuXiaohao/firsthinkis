@@ -1,0 +1,70 @@
+<% layout("/modules/cms/front/themes/default/common/layout.html",{nav:'case'}){ %>
+
+<div class="layui-carousel layui-hide-xs" id="ad">
+  <div carousel-item>
+    <%
+    var ads = @CmsUtils.getArticleList(site.id, "1008", 3, '');
+    for(article in ads){
+    %>
+    <div style="<%if(isEmpty(article.image)){%>background-color: #393D49;<%}else{%>background-image: url(${article.image}); background-repeat:no-repeat; background-size:100% 100%;-moz-background-size:100% 100%;<%}%>">
+      <div class="ad">
+        <p class="ad_title">${article.title}</p>
+        <P class="ad_body">${article.keywords}</p>
+        <p class="ad_bottom">${article.description!}</p>
+      </div>
+    </div>
+    <%}%>
+  </div>
+</div>
+
+<div class="fly-main" style="overflow: hidden;">
+
+  <div class="fly-tab-border fly-case-tab">
+    <span>
+      <a href="" class="tab-this">案例分享</a>
+    </span>
+  </div>
+
+  <%if(category.module == 'article'){%>
+  <ul class="fly-case-list">
+    <%for(article in page.list){%>
+    <li>
+      <a class="fly-case-img" href="${article.url}" target="_blank" >
+        <img src="${article.image}" alt="${@StringUtils.abbr(article.title,40)}">
+        <cite class="layui-btn layui-btn-primary layui-btn-small">去围观</cite>
+      </a>
+      <h2><a href="${article.url}" target="_blank">${@StringUtils.abbr(article.title,40)}</a></h2>
+      <p class="fly-case-desc text-center">${article.description}</p>
+      <div class="fly-case-info">
+        <a href="#" class="fly-case-user" target="_blank"><img src="${article.user.photo}"></a>
+        <p class="layui-elip" style="font-size: 12px;"><span style="color: #666;">${article.user.name}</span> ${article.updateDate,dateFormat="yyyy-MM-dd "}</p>
+        <p>点击<a class="fly-case-nums fly-case-active" href="javascript:;" data-type="showPraise" style=" padding:0 5px; color: #01AAED;">${article.hits}</a>次</p>
+      </div>
+    </li>
+    <%}%>
+  </ul>
+  <div class="pagination" style="background-color:white;">${page}</div>
+  <script type="text/javascript">
+      function page(n,s){
+          location="${ctxFront}/list-${category.id}${@Global.getUrlSuffix()}?pageNo="+n+"&pageSize="+s;
+      }
+  </script>
+  <%}%>
+
+</div>
+
+<script>
+    layui.use('carousel', function(){
+        var carousel = layui.carousel;
+        //建造实例
+        carousel.render({
+            elem: '#ad'
+            ,width: '100%' //设置容器宽度
+            ,height:'350'
+            ,arrow: 'always' //始终显示箭头
+            //,anim: 'updown' //切换动画方式
+        });
+    });
+</script>
+
+<% } %>

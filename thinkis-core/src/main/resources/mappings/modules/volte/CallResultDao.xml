@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.volte.dao.volteDao">
+<insert id="insert">
+    INSERT INTO call_result(
+    id,
+    cpn,
+    cpn_location,
+    cpn_longitude,
+    cpn_latitude,
+    cpn_record_path,
+    cpn_remark,
+    cpdn,
+    call_time
+    ) VALUES (
+    #{id},
+    #{cpn},
+    #{cpn_location},
+    #{cpn_longitude},
+    #{cpn_latitude},
+    #{cpn_record_path},
+    #{cpn_remark},
+    #{cpdn},
+    #{call_time}
+    )
+</insert>
+
+<update id="update">
+    UPDATE call_result SET
+    cpdn_location = #{cpdn_location},
+    cpdn_longitude = #{cpdn_longitude},
+    cpdn_laitude = #{cpdn_laitude},
+    cpdn_record_path = #{cpdn_record_path},
+    cpdn_remark = #{cpdn_remark},
+    WHERE id = #{id}
+</update>
+</mapper>

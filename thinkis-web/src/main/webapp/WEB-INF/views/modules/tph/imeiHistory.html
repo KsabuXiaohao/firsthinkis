@@ -1,0 +1,132 @@
+<% layout("/layouts/micro.html"){ %>
+
+<link rel="stylesheet" href="${ctxStatic}/templates/telecom/vendor/bootstrap/css/style.css">
+<div class="kit-search-btns">
+</div>
+<p></p>
+<p></p>
+<p></p>
+<!--<div class="layui-inline">-->
+    <!--<label class="layui-form-label">日期范围</label>-->
+    <!--<div class="layui-input-inline">-->
+        <!--<input type="text" name="sdate" id="sdate" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">-->
+    <!--</div>-->
+<!--</div>-->
+<!-- -&#45;&#45;-->
+<!--<div class="layui-inline">-->
+    <!--<div class="layui-input-inline">-->
+        <!--<input type="text" name="edate" id="edate" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">-->
+    <!--</div>-->
+<!--</div>-->
+<!--<button class="layui-btn button_ddt"  lay-filter="button" data-type="reload" ><i class="layui-icon">&#xe615;</i></button>-->
+<input type="hidden" name="id" id="id"  class="layui-input">
+<div class="kit-table-body">
+    <div class="layui-col-sm12">
+        <div id="cityChart" style="height: 360px;"></div>
+    </div>
+    <table id="lotList" lay-filter="lotList"style="height: 360px;" ></table>
+</div>
+</div>
+<script type="text/javascript">
+    var xAxisdata=[];
+    var seriesdata=[];
+    function setCityChart() {
+        $.ajax({
+            type: "post",
+            url: "${ctx}/telecom/device/chartImeihHistory",
+            data: "imei="+${device.imei},
+            dataType: "json",
+            success: function (json) {
+                for(var i = 0; json.length>i; i++){
+                    xAxisdata[i]=json[i].shijian;
+                    seriesdata[i]=json[i].zhi;
+                }
+                var cityChart = document.getElementById('cityChart');
+                var myChart = echarts.init(cityChart);// 基于准备好的dom，初始化echarts实例
+                option = {
+                    xAxis: {
+                        type: 'category',
+                        // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                        data: xAxisdata
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [{
+                        data: seriesdata,
+                        // data: [820, 932, 901, 934, 1290, 1330, 1320],
+                        type: 'line'
+                    }]
+                };
+                myChart.setOption(option);
+            }
+        });
+    };
+    window.onload  = setCityChart();
+</script>
+<script type="text/javascript">
+    var onlodtable=null;
+    //时间控件
+    layui.use(['laydate'],function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#sdate',
+        });
+    });
+    layui.use(['laydate'],function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#edate',
+        });
+    });
+
+    layui.use(['table'],function(){
+        var table = layui.table;
+        onlodtable =  table.render({
+            elem: '#lotList',
+            url : '${ctx}/telecom/device/findImeihHistory',
+            where:{imei:${device.imei}},
+            cellMinWidth : 90,
+            page : true,
+            request: {
+                pageName: 'pageNo', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            height : "full-400",
+            limit : 7,
+            limits : [7,10,15,20,25],
+            id : "deviceListTable",
+            cols : [[
+                {field:'imei', title: 'IMEI'},
+                // {field:'deviceid', title: '设备号'},
+                {field:'company', title: '机构名称'},
+                {field:'position', title: '安装位置'},
+                {field:'data', title: '压力值'},
+                {field:'jinggao', title: '警告'},
+                {field:'createdStamp', title: '添加时间'}
+            ]]
+        });
+        var $ = layui.$, active = {
+            reload: function(){
+                var sdate = $('#sdate');
+                var edate = $('#edate');
+                //执行重载
+                table.reload('deviceListTable', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        sdate: sdate.val(),
+                        edate: edate.val()
+                    }
+                });
+            }
+        };
+        $('.button_ddt').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    })
+</script>
+
+<%}%>

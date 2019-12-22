@@ -1,0 +1,78 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    $(document).ready(function() {
+
+    });
+    function page(n,s){
+        if(n) $("#pageNo").val(n);
+        if(s) $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+	 <div class="layui-tab layui-tab-brief childrenBody">
+      <ul class="layui-tab-title">
+         <li class="layui-this"><a href="${ctx}/gen/genTable/">业务表列表</a></li>
+         <%if(shiro.hasPermission("gen:genScheme:edit")){%><li><a href="${ctx}/gen/genTable/form">业务表添加</a></li><%}%>
+	</ul>
+    <div class="layui-tab-content">
+	<form id="searchForm" modelAttribute="genTable" action="${ctx}/gen/genTable/" method="post" class="layui-form">
+		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+		<#tableSort id="orderBy" name="orderBy" value="${page.orderBy}" callback="page();"/>
+		<div class="layui-input-inline">
+			<label class="layui-form-label">表名 ：</label>
+			<div class="layui-input-inline">
+				<input  type="text" name="nameLike" htmlEscape="false" maxlength="200" class="layui-input"/>
+			</div>
+		</div>
+		<div class="layui-input-inline">
+			<label class="layui-form-label">说明 ：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="comments" htmlEscape="false" maxlength="200" class="layui-input"/>
+			</div>
+		</div>
+		<div class="layui-input-inline">
+			<label class="layui-form-label">父表表名 ：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="parentTable" htmlEscape="false" maxlength="200" class="layui-input"/>
+			</div>
+		</div>
+				
+		<div class="layui-input-inline">
+            <button  lay-filter="*"  class="layui-btn layui-btn-sm"  lay-submit>查询</button>
+       	</div>
+	</form>
+	<#message content="${message!}"/>
+	<table class="layui-table" >
+		<thead>
+		<tr>
+			<th class="sort-column name">表名</th><th>说明</th><th class="sort-column class_name">类名</th><th class="sort-column parent_table">父表</th>
+			<%if(shiro.hasPermission("gen:genTable:edit")){%><th>操作</th><%}%>
+		</tr>
+		</thead>
+		<tbody>
+		<%for(genTable in page.list){%>
+			<tr>
+				<td><a href="${ctx}/gen/genTable/form?id=${genTable.id}">${genTable.name}</a></td>
+				<td>${genTable.comments}</td>
+				<td>${genTable.className}</td>
+				<td title="点击查询子表"><a href="javascript:" onclick="$('#parentTable').val('${genTable.parentTable}');$('#searchForm').submit();">${genTable.parentTable}</a></td>
+				<%if(shiro.hasPermission("gen:genTable:edit")){%>
+				<td>
+    				<a class="layui-btn layui-btn-xs " href="${ctx}/gen/genTable/form?id=${genTable.id}">修改</a>
+					<a class="layui-btn layui-btn-xs layui-btn-danger" href="${ctx}/gen/genTable/delete?id=${genTable.id}" onclick="return confirmx('确认要删除该业务表吗？', this.href)">删除</a>
+				</td>
+				<%}%>
+			</tr>
+		<%}%>
+		</tbody>
+	</table>
+	<div class="pagination">${page}</div>
+	</div>
+	</div>
+<%}%>

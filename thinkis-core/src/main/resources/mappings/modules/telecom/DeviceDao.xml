@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.telecom.dao.DeviceDao">
+    <select id="findList" resultType="Device">
+        select a.id,a.meid,a.companyid,a.company,a.addtime,b.name,a.sim,a.imei,a.imsi,a.longitude,a.latitude,a.position,a.deviceid from device a left join sys_office b on a.companyid = b.id
+        where 1=1
+        <if test="sdate != null and sdate != ''">
+            and date_format(a.addtime, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(a.addtime, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        <if test="imei != null and imei != ''">
+            and imei like CONCAT(CONCAT('%', #{imei}), '%')
+        </if>
+        <if test="company != null and company != ''">
+            and a.company like CONCAT(CONCAT('%', #{company}), '%')
+        </if>
+        ORDER BY a.addtime desc
+    </select>
+    <select id="getDeviceByCompanyId" resultType="Device">
+        select * from device
+        where companyid = #{companyid}
+        <if test="sdate != null and sdate != ''">
+            and date_format(addtime, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(addtime, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        <if test="imei != null and imei != ''">
+            and imei like CONCAT(CONCAT('%', #{imei}), '%')
+        </if>
+        ORDER BY addtime desc
+    </select>
+    <select id="get" resultType="Device">
+        select * from device where id = #{id}
+    </select>
+    <delete id="delete" >
+        delete from device where id = #{id}
+    </delete>
+
+    <select id="findListHistory" resultType="Device">
+        select * from device where 1=1
+        <if test="imei != null and imei != ''">
+            and imei like CONCAT(CONCAT('%', #{imei}), '%')
+        </if>
+        <if test="company != null and company != ''">
+            and company like CONCAT(CONCAT('%', #{company}), '%')
+        </if>
+        <if test="sdate != null and sdate != ''">
+            and date_format(addtime, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(addtime, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        ORDER BY addtime desc
+    </select>
+
+    <select id="findListkhHistory" resultType="Device">
+        select * from device where companyid = #{companyid}
+        <if test="imei != null and imei != ''">
+            and imei like CONCAT(CONCAT('%', #{imei}), '%')
+        </if>
+        <if test="company != null and company != ''">
+            and company like CONCAT(CONCAT('%', #{company}), '%')
+        </if>
+        <if test="sdate != null and sdate != ''">
+            and date_format(addtime, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(addtime, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        ORDER BY addtime desc
+    </select>
+
+    <select id="getAlarmList" resultType="Device">
+        select a.imei,c.PRESSURE as DATA,a.deviceid,a.company,a.position,a.longitude,a.latitude,b.ALARM,case b.ALARM when '161' then '低压' when '162' then '高压' when '0' then '正常'  end as jinggao,b.CREATED_STAMP,a.isonline
+        from device a,iot_event b,iot_event_detail c
+        where a.deviceid = b.DEVICE_ID and b.ID = c.EVENT_ID
+        <if test="sdate != null and sdate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        and b.CREATED_STAMP in (
+        select Max(b.CREATED_STAMP) as CREATED_STAMP from device a,iot_event b
+        where a.deviceid = b.DEVICE_ID GROUP BY a.deviceid)
+    </select>
+
+    <select id="getkhAlarmList" resultType="Device">
+        select a.imei,c.PRESSURE as DATA,a.deviceid,a.company,a.position,a.longitude,a.latitude,b.ALARM,case b.ALARM when '161' then '低压' when '162' then '高压' when '0' then '正常'  end as jinggao,b.CREATED_STAMP,a.isonline
+        from device a,iot_event b,iot_event_detail c
+        where a.deviceid = b.DEVICE_ID and b.ID = c.EVENT_ID and a.companyid = #{companyid}
+        <if test="sdate != null and sdate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        and b.CREATED_STAMP in (
+        select Max(b.CREATED_STAMP) as CREATED_STAMP from device a,iot_event b
+        where a.deviceid = b.DEVICE_ID GROUP BY a.deviceid)
+    </select>
+
+    <select id="findImeihHistory" resultType="Device">
+        select c.company,c.imei,c.position,c.deviceid,b.ALARM ,
+        case b.ALARM when '161' then '低压' when '162' then '高压' when '0' then '正常'  end as jinggao ,b.CREATED_STAMP,d.`PRESSURE` as DATA from
+        iot_event b left join device c on b.DEVICE_ID = c.deviceid left join iot_event_detail d on b.id = d.EVENT_ID
+        where  c.imei = #{imei} and DATE_SUB(CURDATE(), INTERVAL 15 DAY) &lt;= date(b.CREATED_STAMP)
+        <if test="sdate != null and sdate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        ORDER BY b.CREATED_STAMP desc
+    </select>
+
+    <select id="chartImeihHistory" resultType="Map">
+        select shijian,FORMAT(zhi,2) as zhi from (
+        select DATE_FORMAT(b.CREATED_STAMP,'%Y-%m-%d') as shijian,substring_index(substring_index(substring_index(d.`PRESSURE`,'Mpa.a',1),'Mpa.g',1),'KPa',1) as zhi from
+        iot_event b left join device c on b.DEVICE_ID = c.deviceid left join iot_event_detail d on b.id = d.EVENT_ID
+        where c.imei = #{imei} and DATE_SUB(CURDATE(), INTERVAL 15 DAY) &lt;= date(b.CREATED_STAMP) ORDER BY b.CREATED_STAMP desc) a
+    </select>
+
+    <select id="importImeiHistory" resultType="Device">
+        select c.company,c.imei,c.position,c.deviceid,b.ALARM ,
+        case b.ALARM when '161' then '低压' when '162' then '高压' when '0' then '正常'  end as jinggao ,b.CREATED_STAMP,d.`PRESSURE` as DATA from
+        iot_event b left join device c on b.DEVICE_ID = c.deviceid left join iot_event_detail d on b.id = d.EVENT_ID
+        where  c.imei &lt;&gt; ''
+        <if test="companyid != null and companyid != ''">
+            and c.companyid= #{companyid}
+        </if>
+        <if test="sdate != null and sdate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&gt;=#{sdate}
+        </if>
+        <if test="edate != null and edate != ''">
+            and date_format(b.CREATED_STAMP, '%Y-%m-%d' )&lt;=#{edate}
+        </if>
+        ORDER BY b.CREATED_STAMP desc
+    </select>
+
+    <select id="importDeviceHistory" resultType="Device">
+        select company,imei,position,addtime from device
+        ORDER BY addtime desc
+    </select>
+
+    <select id="importDevicekhHistory" resultType="Device">
+        select company,imei,position,addtime from device where companyid = #{companyid}
+        ORDER BY addtime desc
+    </select>
+
+</mapper>

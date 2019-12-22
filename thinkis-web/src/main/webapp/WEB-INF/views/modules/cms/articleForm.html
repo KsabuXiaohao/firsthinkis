@@ -1,0 +1,325 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm"  action="${ctx}/cms/article/save" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${article.id}"/>
+
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md8">
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label"><font color="red">*</font> 标题</label>
+									<div class="layui-input-block" style="width: 300px;">
+										<input type="text" name="title" value="${article.title}" htmlEscape="false" maxlength="200" class="layui-input" lay-verify="required"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">颜色</label>
+									<div class="layui-input-block" style="width: 100px;">
+										<select name="color" class="input-mini">
+											<option value="" label="默认"/>
+											<#options items="${@DictUtils.getDictList('color')}" value="${article.color}"/>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label for="url"  class="layui-form-label" >外部链接</label>
+								<input lay-skin="primary" id="url" type="checkbox" lay-filter="url" >
+								<script type="text/javascript">
+                                    layui.use(['form'],function(){
+                                        var form  = layui.form;
+                                        form.on('checkbox(url)', function(data){
+                                            if(this.checked){$('#linkBody').show()}else{$('#linkBody').hide()}$('#link').val()
+                                        });
+                                    })
+								</script>
+							</div>
+
+							<div id="linkBody" class="layui-form-item" style="display:none">
+								<label class="layui-form-label">外部链接:</label>
+								<div class="layui-input-block">
+									<input type="text" id ="link" name="link" value="${article.link}" placeholder="绝对或相对地址" htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+							<div class="layui-form-item layui-form-text">
+								<label class="layui-form-label"><font color="#FF0000"> * </font>正文</label>
+								<div class="layui-input-block">
+									<#ueditor id="content" lay-verify="required" name="articleData.content" content="${article.articleData.content!}" height="200" />
+								</div>
+							</div>
+							<div class="layui-form-item layui-form-text">
+								<label class="layui-form-label">摘要</label>
+								<div class="layui-input-block">
+									<textarea name="description" htmlEscape="false" rows="4" maxlength="200" class="layui-textarea">${article.description}</textarea>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">相关文章</label>
+								<div class="layui-input-block">
+									<input type="hidden" id="articleDataRelation" name="articleData.relation" value="${article.articleData.relation!}" htmlEscape="false" maxlength="200" class="input-xlarge"/>
+									<ol id="articleSelectList"></ol>
+									<a id="relationButton" href="javascript:" class="layui-btn layui-btn-normal layui-btn-sm">添加相关</a>
+									<script type="text/javascript">
+                                        var articleSelect = [];
+                                        function articleSelectAddOrDel(id,title){
+                                            var isExtents = false, index = 0;
+                                            for (var i=0; i<articleSelect.length; i++){
+                                                if (articleSelect[i][0]==id){
+                                                    isExtents = true;
+                                                    index = i;
+                                                }
+                                            }
+                                            if(isExtents){
+                                                articleSelect.splice(index,1);
+                                            }else{
+                                                articleSelect.push([id,title]);
+                                            }
+                                            articleSelectRefresh();
+                                        }
+                                        function articleSelectRefresh(){
+                                            $("#articleDataRelation").val("");
+                                            $("#articleSelectList").children().remove();
+                                            for (var i=0; i<articleSelect.length; i++){
+                                                $("#articleSelectList").append("<li>"+articleSelect[i][1]+"&nbsp;&nbsp;<a href=\"javascript:\" onclick=\"articleSelectAddOrDel('"+articleSelect[i][0]+"','"+articleSelect[i][1]+"');\">×</a></li>");
+                                                $("#articleDataRelation").val($("#articleDataRelation").val()+articleSelect[i][0]+",");
+                                            }
+                                        }
+                                        $.getJSON("${ctx}/cms/article/findByIds",{ids:$("#articleDataRelation").val()},function(data){
+                                            for (var i=0; i<data.length; i++){
+                                                articleSelect.push([data[i][1],data[i][2]]);
+                                            }
+                                            articleSelectRefresh();
+                                        });
+                                        $("#relationButton").click(function(){
+                                            layer.open({
+                                                type: 2,
+                                                title: "添加相关",
+                                                shadeClose: true,
+                                                shade: 0.3,
+                                                area: ['1000px','600px'],
+                                                content: "${ctx}/cms/article/selectList?pageSize=8",
+                                                btn: ['确定', '关闭'],
+                                                yes: function(index, layero){
+                                                    layer.close(index);
+                                                }
+                                            });
+
+                                        });
+									</script>
+								</div>
+							</div>
+
+							<%if(shiro.hasPermission("cms:category:edit")){%>
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width: 110px;line-height: 38px;padding: 0;">自定义内容视图</label>
+								<div class="layui-input-block">
+									<select name="customContentView" class="input-mini">
+										<option value="" label="默认视图">默认视图</option>
+										<%for(contentview in contentViewList){%>
+										<option value="${contentview}" label="${contentview}" title="${contentview}" <%if(contentview==article.customContentView){%>selected<%}%>>${contentview}</option>
+										<%}%>
+									</select>
+								</div>
+								<!--  <div class="layui-form-mid layui-word-aux">自定义内容视图名称必须以"${article_DEFAULT_TEMPLATE}"开始</div> -->
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label" style="width: 110px;line-height: 38px;padding: 0;">自定义视图参数</label>
+								<div class="layui-input-block">
+									<input type="text" name="viewConfig" placeholder='{例如:count:2, title_show:"yes"}' value="${article.viewConfig}" htmlEscape="true" class="layui-input"/>
+								</div>
+							</div>
+							<%}%>
+							<%if(isNotEmpty(article.id)){%>
+							<div class="layui-form-item">
+								<label class="layui-form-label">查看评论</label>
+								<div class="layui-input-block">
+									<input id="btnComment" class="layui-btn layui-btn-normal layui-btn-sm" type="button" value="查看评论" onclick="viewComment('${ctx}/cms/comment/?module=article&contentId=${article.id}&status=0')"/>
+									<script type="text/javascript">
+                                        function viewComment(href){
+                                            layer.open({
+                                                type: 2,
+                                                title: "查看评论",
+                                                shadeClose: true,
+                                                shade: 0.3,
+                                                area: ['900px','550px'],
+                                                content: href,
+                                                btn: ['确定', '关闭'],
+                                                yes: function(index, layero){
+                                                    layer.close(index);
+                                                }
+                                            });
+                                            return false;
+
+                                        }
+									</script>
+								</div>
+							</div>
+							<%}%>
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-md4">
+					<div class="layui-card">
+						<div class="layui-card-header">缩略图</div>
+						<div class="layui-card-body">
+							<#imageUpload id="image" name="image" value="${article.image!}" cssClass="" desc="上传缩略图，类型为jpg或png，图片尺寸为100X100，最大允许上传1M。" size="1024"  required="false"/>
+						</div>
+					</div>
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label">归属栏目</label>
+								<div class="layui-input-block">
+									<#treeselect id="category" name="category.id" value="${article.category.id!}" labelName="category.name" labelValue="${article.category.name!}"
+									title="栏目" url="/cms/category/treeData" module="article" selectScopeModule="true" notAllowSelectRoot="false" notAllowSelectParent="true" cssClass="required"/>&nbsp;
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">关键字</label>
+								<div class="layui-input-block">
+									<input type="text" name="keywords" value="${article.keywords}" placeholder="多个关键字，用空格分隔" htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">权重</label>
+									<div class="layui-input-block">
+										<input type="text" id="weight" name="weight" value="${article.weight}" htmlEscape="false" maxlength="200" class="layui-input digits" lay-verify="required"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label for="weightTop" class="layui-form-label" >置顶</label>
+									<input lay-skin="primary"  id="weightTop" type="checkbox" lay-filter="weightTop">
+									<script type="text/javascript">
+                                        layui.use(['form'],function(){
+                                            var form  = layui.form;
+                                            form.on('checkbox(weightTop)', function(data){
+                                                $('#weight').val(this.checked?'999':'0')
+                                            });
+                                        })
+									</script>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">过期时间</label>
+								<div class="layui-input-block">
+									<input id="weightDate" name="weightDate" placeholder="数值越大排序越靠前，过期时间可为空，过期后取消置顶" type="text" readonly="readonly" maxlength="20" class="layui-input"
+										   value="${article.weightDate,dateFormat='yyyy-MM-dd'}"/>
+								</div>
+							</div>
+
+							<div class="layui-form-item">
+								<label class="layui-form-label">来源</label>
+								<div class="layui-input-block">
+									<input type="text" name="articleData.copyfrom" value="${article.articleData.copyfrom!}"  htmlEscape="false" maxlength="200" class="layui-input"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label">允许评论</label>
+								<div class="layui-input-block">
+									<#radio name="articleData.allowComment" items="${@DictUtils.getDictList('yes_no')}" value="${article.articleData.allowComment!}"/>
+								</div>
+							</div>
+							<div class="layui-form-item"  pane="">
+								<label class="layui-form-label">推荐位</label>
+								<div class="layui-input-block">
+									<%for(posid in @DictUtils.getDictList('cms_posid')){%>
+									<input type="checkbox" name="posidList" title="${posid.label}" value="${posid.value}"  lay-skin="primary" <%if(array.contain(article.posidList,posid.value)){%>checked<%}%> />
+									<%}%>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">发布时间</label>
+								<div class="layui-input-block">
+									<input id="createDate" name="createDate" type="text" readonly="readonly" maxlength="20" class="layui-input"
+										   value="${article.createDate,dateFormat='yyyy-MM-dd HH:mm:ss'}" />
+								</div>
+							</div>
+							<%if(shiro.hasPermission("cms:article:audit")){%>
+							<div class="layui-form-item"  pane="">
+								<label class="layui-form-label">发布状态</label>
+								<div class="layui-input-block">
+									<#radio name="delFlag" items="${@DictUtils.getDictList('cms_del_flag')}" value="${article.delFlag}"/>
+								</div>
+							</div>
+							<%}%>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block" style="display: none;">
+					<%if(shiro.hasPermission("cms:article:edit")){%>
+					<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+					<%}%>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</div>
+<script>
+
+    layui.use(['form','laydate'], function(){
+        var form = layui.form,laydate = layui.laydate;
+        form.render();
+        laydate.render({
+            elem:"#weightDate",
+            value:'${article.weightDate,dateFormat="yyyy-MM-dd"}'
+        });
+        laydate.render({
+            elem:"#createDate",
+            value:'${article.createDate,dateFormat="yyyy-MM-dd"}'
+        });
+
+
+        form.on("submit(addData)",function(data){
+            /* 	if ($("#categoryId").val()==""){
+                      $("#categoryName").focus();
+                      layer.msg("请选择归属栏目", {icon: 0});
+                }else if (CKEDITOR.instances.content.getData()=="" && $("#link").val().trim()==""){
+                      layer.msg("请填写正文", {icon: 0});
+                } */
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    top.layer.close(index);
+                    top.layer.msg(result.msg);
+                    layer.closeAll("iframe");
+                    //刷新父页面
+                    parent.location.reload();
+                }
+            });
+            return false;
+        })
+        if($("#link").val()!=null&&$("#link").val()!=""){
+            $('#linkBody').show();
+            $('#url').attr("checked", true);
+        }
+        $("#title").focus();
+
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

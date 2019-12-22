@@ -1,0 +1,135 @@
+<% layout("/layouts/micro.html",{title:"报名名单管理"}){ %>
+<style>
+	.layui-form-pane .layui-form-label{
+		width: 120px;
+	}
+	.layui-form-pane .layui-input-block{
+		margin-left: 120px;
+	}
+</style>
+<div class="childrenBody">
+<div class="layui-tab-content">
+	<form id="inputForm"  action="${ctx}/edu/enrollList/save" method="post" class="layui-form layui-form-pane">
+		<input type="hidden" name="id" value="${enrollList.id!}"/>
+		<fieldset class="layui-elem-field layui-field-title">
+			<legend>学员信息</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<label class="layui-form-label">学员姓名：</label>
+			<div class="layui-input-inline">
+				<input name="name" value="${enrollList.name!}" htmlEscape="false" maxlength="255" class="layui-input " lay-verify="required"/>
+			</div>
+		</div>
+		<div class="layui-form-item" pane="">
+			<label class="layui-form-label">性别：</label>
+			<div class="layui-input-inline"  >
+				<#radio name="sex" value="${enrollList.sex!}" items="${@DictUtils.getDictList('sex')}" />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生日：</label>
+			<div class="layui-input-inline">
+				<input class="layui-input" id="birthday" name="birthday" placeholder="" type="text" lay-verify="required">
+				<script>
+					layui.use('laydate', function() {
+						var laydate = layui.laydate;
+						laydate.render({
+							elem: '#birthday',
+							value:'${enrollList.birthday,dateFormat="yyyy-MM-dd"}'
+						});
+					})
+				</script>
+			</div>
+		</div>
+		<fieldset class="layui-elem-field layui-field-title">
+			<legend>监护人信息</legend>
+		</fieldset>
+			<div class="layui-form-item" pane="">
+				<label class="layui-form-label">监护人类型：</label>
+				<div class="layui-input-block">
+					<#radio name="guardianType" value="${enrollList.guardianType!}" items="${@DictUtils.getDictList('guardian_type')}" />
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">监护人姓名：</label>
+				<div class="layui-input-inline">
+					<input name="guardianName" value="${enrollList.guardianName!}" htmlEscape="false" maxlength="255" class="layui-input " lay-verify="required"/>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">监护人手机：</label>
+				<div class="layui-input-inline">
+					<input name="guardianTel" value="${enrollList.guardianTel!}" htmlEscape="false" maxlength="255" class="layui-input " lay-verify="required"/>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">监护人邮箱：</label>
+				<div class="layui-input-inline">
+					<input name="guardianEmail" value="${enrollList.guardianEmail!}" htmlEscape="false" maxlength="255" class="layui-input " />
+				</div>
+			</div>
+		<fieldset class="layui-elem-field layui-field-title">
+			<legend>课程选择</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<label class="layui-form-label">课程类型：</label>
+			<div class="layui-input-block">
+				<select name="courseType" class="layui-input" >
+                    <%
+                    var courseTypes = @EduUtils.getCourseTypes();
+                    for(courseType in courseTypes){
+                    %>
+                    <option value="${courseType.id}" <%if(enrollList.courseType==courseType.id){%>selected<%}%> >${courseType.name}</option>
+                    <%}%>
+				</select>
+			</div>
+		</div>
+		<div class="layui-form-item" pane="">
+			<label class="layui-form-label">状态：</label>
+			<div class="layui-input-block">
+				<#radio name="status" value="${enrollList.status!}" items="${@DictUtils.getDictList('status')}" />
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注信息：</label>
+			<div class="layui-input-block">
+				<textarea name="remarks" htmlEscape="false" rows="4" maxlength="255" class="layui-textarea" >${enrollList.remarks!}</textarea>
+			</div>
+		</div>
+		<div class="layui-form-item layui-hide">
+	    	<div class="layui-input-block">
+	    		<%if(shiro.hasPermission("edu:enrollList:edit")){%>
+      				<button class="layui-btn" id="LAY_addData" lay-filter="addData" lay-submit>保 存</button>
+      			<%}%>
+		    </div>
+	  	</div>
+	</form>
+	</div>
+</div>
+	<script>
+		layui.use(['form', 'laydate'], function() {
+			var form = layui.form, laydate = layui.laydate;
+			form.render();
+			form.on("submit(addData)",function(data){
+				var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+				var actionUrl = $("#inputForm").attr("action");
+				var formData = $("#inputForm").serialize();//序列化表格内容为字符串  
+			    $.ajax({  
+			        type:'post',      
+			        url:actionUrl,  
+			        data:formData,  
+			        cache:false,  
+			        dataType:'json',  
+			        success:function(result){  
+		        	 	top.layer.close(index);
+			        	top.layer.msg(result.msg);
+                        parent.layui.layer.closeAll();
+                        //刷新父页面
+                        parent.layui.table.reload("enrollListListTable");
+			        }  
+			    });
+				return false;
+		 	})
+		});
+	</script>
+<%}%>

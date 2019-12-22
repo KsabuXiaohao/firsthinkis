@@ -1,0 +1,181 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm"  action="${ctx}/sys/office/save" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${office.id}"/>
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md12">
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">上级机构</label>
+									<div class="layui-input-block">
+										<#treeselect id="office" name="parent.id" value="${office.parent.id!}" labelName="parent.name" labelValue="${office.parent.name!}"
+										title="机构" url="/sys/office/treeData" extId="${office.id}" cssClass="" allowClear="${office.currentUser.admin!}"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label"><font color="#FF0000"> * </font>归属区域</label>
+									<div class="layui-input-block">
+										<#treeselect id="area" name="area.id" value="${office.area.id!}" labelName="area.name" labelValue="${office.area.name!}"
+										title="区域" url="/sys/area/treeData" cssClass="input-midlle"  />
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label"><font color="#FF0000"> * </font>组织名称</label>
+									<div class="layui-input-block" style="width: 400px;">
+										<input type="text" name="name" value="${office.name}" htmlEscape="false" maxlength="50" class="layui-input " lay-verify="required" />
+									</div>
+								</div>
+
+								<div class="layui-inline">
+									<label class="layui-form-label"><font color="#FF0000"> * </font>组织编码</label>
+									<div class="layui-input-block">
+										<input type="text" name="code" value="${office.code}" htmlEscape="false" maxlength="50" class="layui-input" lay-verify="required" />
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">主负责人</label>
+									<div class="layui-input-block" >
+										<#treeselect id="primaryPerson" name="primaryPerson.id" value="${office.primaryPerson.id!}" labelName="office.primaryPerson.name!" labelValue="${office.primaryPerson.name!}"
+										title="用户" url="/sys/office/treeData?type=3" allowClear="true" notAllowSelectParent="true"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">副负责人</label>
+									<div class="layui-input-block">
+										<#treeselect id="deputyPerson" name="deputyPerson.id" value="${office.deputyPerson.id!}" labelName="office.deputyPerson.name!" labelValue="${office.deputyPerson.name!}"
+										title="用户" url="/sys/office/treeData?type=3" notAllowSelectParent="true"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">组织类型</label>
+									<div class="layui-input-block">
+										<select name="type" class="">
+											<#options items="${@DictUtils.getDictList('sys_office_type')}" value="${office.type}"/>
+										</select>
+									</div>
+								</div>
+
+								<div class="layui-inline">
+									<label class="layui-form-label">组织级别</label>
+									<div class="layui-input-block">
+										<select name="grade" class="layui-input">
+											<#options items="${@DictUtils.getDictList('sys_office_grade')}" value="${office.grade}"/>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">收费模式</label>
+									<div class="layui-input-block">
+										<select name="moneyModel" class="">
+											<#options items="${@DictUtils.getDictList('money_model')}" value="${office.moneyModel}"/>
+										</select>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">项目名称</label>
+									<div class="layui-input-block">
+										<input type="text" name="projectname" value="${office.projectname}" htmlEscape="false" maxlength="50"  class="layui-input"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item" pane="">
+								<label class="layui-form-label"><font color="#FF0000"> * </font>是否可用</label>
+								<div class="layui-input-block">
+									<#radio name="useable" value="${office.useable }" items="${@DictUtils.getDictList('yes_no')}"/>
+							</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">联系地址</label>
+									<div class="layui-input-block" style="width: 400px;">
+										<input type="text" name="address" value="${office.address}" htmlEscape="false" maxlength="50"  class="layui-input"/>
+									</div>
+								</div>
+
+								<div class="layui-inline">
+									<label class="layui-form-label">邮政编码</label>
+									<div class="layui-input-block">
+										<input type="text" name="zipCode" value="${office.zipCode}" htmlEscape="false" maxlength="50"  class="layui-input"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">电话</label>
+									<div class="layui-input-block">
+										<input type="text" name="phone" value="${office.phone}" htmlEscape="false" maxlength="50"  class="layui-input"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">传真</label>
+									<div class="layui-input-block">
+										<input type="text" name="fax" value="${office.fax}" htmlEscape="false" maxlength="50"  class="layui-input"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">邮箱</label>
+									<div class="layui-input-block">
+										<input type="text" name="email" value="${office.email}"  htmlEscape="false" maxlength="18"  class="layui-input"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">备注</label>
+								<div class="layui-input-block">
+									<textarea name="remarks" htmlEscape="false" rows="3" maxlength="200" class="layui-textarea">${office.remarks}</textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="layui-form-item" style="display: none;">
+				<%if(shiro.hasPermission("sys:office:edit")){%>
+				<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+				<%}%>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.render();
+        form.on("submit(addData)",function(data){
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    setTimeout(function () {
+                        top.layer.msg(result.msg);
+                        parent.layer.closeAll();
+                    }, 300);
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

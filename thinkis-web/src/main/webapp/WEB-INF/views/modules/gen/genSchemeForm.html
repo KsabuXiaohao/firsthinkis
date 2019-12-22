@@ -1,0 +1,111 @@
+<% layout("/layouts/micro.html"){ %>
+	<div class="layui-tab layui-tab-brief childrenBody">
+      <ul class="layui-tab-title">
+       	<li><a href="${ctx}/gen/genScheme/">生成方案列表</a></li>
+		<li class="layui-this">
+			<a href="${ctx}/gen/genScheme/form?id=${genScheme.id}">生成方案<%if(shiro.hasPermission("gen:genScheme:edit")){%>${isNotEmpty(genScheme.id)?'修改':'添加'}<%}%><%if(shiro.lacksPermission("gen:genScheme:edit")){%>查看<%}%>
+		</a></li>	
+	</ul>
+    <div class="layui-tab-content">
+	<form id="inputForm" action="${ctx}/gen/genScheme/save" method="post" class="layui-form">
+		<input type="hidden" name="id" id="id" value="${genScheme.id}"/>
+		<input type="hidden" name="flag" id="flag" value="${genScheme.flag}"/>
+		<#message content="${message!}"/>
+		<div class="layui-form-item">
+			<label class="layui-form-label">方案名称:</label>
+			<div class="layui-input-inline">
+				<input type="text" name="name"  value="${genScheme.name}"  htmlEscape="false" maxlength="200" class="layui-input" lay-verify="required" />
+			</div>
+			<div class="layui-form-mid "><font color="red">*</font> </div>
+		</div>
+		
+		<div class="layui-form-item">
+			<label class="layui-form-label">模板分类:</label>
+			<div class="layui-input-inline">
+				<select name="category">
+					<#options items="${config.categoryList}" value="${genScheme.category}"/>
+				</select>
+			</div>
+			<div class="layui-form-mid layui-word-aux">
+					生成结构：{包名}/{模块名}/{分层(dao,entity,service,web)}/{子模块名}/{java类}
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生成包路径:</label>
+			<div class="layui-input-inline">
+				<input type="text" name="packageName" value="${genScheme.packageName}" htmlEscape="false" maxlength="500"  class="layui-input"/>
+			</div>
+				<div class="layui-form-mid layui-word-aux">建议模块包：com.thinkis.modules</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生成模块名:</label>
+			<div class="layui-input-inline">
+				<input type="text" name="moduleName" value="${genScheme.moduleName}" htmlEscape="false" maxlength="500"  class="layui-input"/>
+			</div>
+				<div class="layui-form-mid layui-word-aux">可理解为子系统名，例如 sys</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生成子模块名:</label>
+			<div class="layui-input-inline">
+				<input type="text" name="subModuleName" value="${genScheme.subModuleName}" htmlEscape="false" maxlength="500"  class="layui-input"/>
+			</div>
+				<div class="layui-form-mid layui-word-aux">可选，分层下的文件夹，例如 </div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生成功能描述:</label>
+			<div class="layui-input-inline">
+				<input type="text" name="functionName" value="${genScheme.functionName}" htmlEscape="false" maxlength="500" lay-verify="required" class="layui-input"/>
+			</div>
+				<div class="layui-form-mid layui-word-aux">将设置到类描述</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生成功能名:</label>
+			<div class="layui-input-inline">
+				<input type="text" name="functionNameSimple" value="${genScheme.functionNameSimple}" htmlEscape="false" maxlength="500"  class="layui-input"/>
+			</div>
+				<div class="layui-form-mid layui-word-aux">用作功能提示，如：保存“某某”成功</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生成功能作者:</label>
+			<div class="layui-input-inline">
+				<input type="text" name="functionAuthor" value="${genScheme.functionAuthor}" htmlEscape="false" maxlength="500" lay-verify="required" class="layui-input"/>
+			</div>
+				<div class="layui-form-mid layui-word-aux">功能开发者</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">业务表名:</label>
+			<div class="layui-input-inline">
+				<select name="genTable.id">
+					<%for(item in tableList){%>
+					<option value="${item.id}" <%if(item.id==genScheme.genTable.id!){%>selected<%}%>>${item.nameAndComments}</option>
+					<%}%>
+				</select>
+			</div>
+				<div class="layui-form-mid layui-word-aux">生成的数据表，一对多情况下请选择主表。</div>
+		</div>	
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注:</label>
+			<div class="layui-input-block">
+				<textarea name="remarks" htmlEscape="false" rows="3" maxlength="200" class="layui-textarea" >${genScheme.remarks}</textarea>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">生成选项:</label>
+			<div class="layui-input-inline">
+				<input type="checkbox" name="replaceFile" value="true" title="是否替换现有文件">
+			</div>
+		</div>
+		
+		<div class="layui-form-item">
+	    	<div class="layui-input-block">
+				<%if(shiro.hasPermission("gen:genScheme:edit")){%>
+      				<button class="layui-btn" lay-filter="*" lay-submit onclick="$('#flag').val('0');">保存方案</button>
+      				<button class="layui-btn" lay-filter="*" lay-submit onclick="$('#flag').val('1');">保存并生成代码</button>
+      			<%}%>
+	       		<button type="reset" class="layui-btn layui-btn-primary" onclick="history.go(-1)">返回</button>
+		    </div>
+	  	</div>
+	</form>
+	</div>
+</div>
+<%}%>

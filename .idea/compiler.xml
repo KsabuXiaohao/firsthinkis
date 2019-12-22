@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="thinkis-act" />
+        <module name="thinkis-api" />
+        <module name="thinkis-cms" />
+        <module name="thinkis-core" />
+        <module name="thinkis-gen" />
+        <module name="thinkis-miniapp" />
+        <module name="thinkis-web" />
+        <module name="thinkis-weixin" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="firsthinkis" target="1.8" />
+      <module name="thinkis-act" target="1.8" />
+      <module name="thinkis-api" target="1.8" />
+      <module name="thinkis-cms" target="1.8" />
+      <module name="thinkis-core" target="1.8" />
+      <module name="thinkis-gen" target="1.8" />
+      <module name="thinkis-miniapp" target="1.8" />
+      <module name="thinkis-web" target="1.8" />
+      <module name="thinkis-weixin" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

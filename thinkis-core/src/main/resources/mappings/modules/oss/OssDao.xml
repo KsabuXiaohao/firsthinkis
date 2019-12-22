@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkis.modules.oss.dao.OssDao">
+    
+	<sql id="ossColumns">
+		a.id AS "id",
+		a.file_name AS "fileName",
+		a.file_ext AS "fileExt",
+		a.file_length AS "fileLength",
+		a.file_id AS "fileId",
+		a.status AS "status",
+		a.download AS "download",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="ossJoins">
+	</sql>
+    
+	<select id="get" resultType="Oss">
+		SELECT 
+			<include refid="ossColumns"/>
+		FROM sys_oss a
+		<include refid="ossJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Oss">
+		SELECT 
+			<include refid="ossColumns"/>
+		FROM sys_oss a
+		<include refid="ossJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="fileName != null and fileName != ''">
+				AND a.file_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{fileName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{fileName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{fileName},'%')</if>
+			</if>
+			<if test="fileExt != null and fileExt != ''">
+				AND a.file_ext = #{fileExt}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Oss">
+		SELECT 
+			<include refid="ossColumns"/>
+		FROM sys_oss a
+		<include refid="ossJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sys_oss(
+			id,
+			file_name,
+			file_ext,
+			file_length,
+			file_id,
+			status,
+			download,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{fileName},
+			#{fileExt},
+			#{fileLength},
+			#{fileId},
+			#{status},
+			#{download},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sys_oss SET 	
+			file_name = #{fileName},
+			file_ext = #{fileExt},
+			file_length = #{fileLength},
+			file_id = #{fileId},
+			status = #{status},
+			download = #{download},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE sys_oss SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

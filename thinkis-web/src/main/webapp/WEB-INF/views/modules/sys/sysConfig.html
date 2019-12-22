@@ -1,0 +1,63 @@
+<% layout("/layouts/micro.html"){ %>
+<div class="childrenBody">
+	<blockquote class="layui-elem-quote layui-bg-green">
+		<div id="nowTime"></div>
+	</blockquote>
+	<div class="layui-row layui-col-space10">
+		<div class="layui-col-lg6 layui-col-md12">
+			<blockquote class="layui-elem-quote title">系统基本参数</blockquote>
+			<table class="layui-table magt0">
+				<colgroup>
+					<col width="150">
+					<col>
+				</colgroup>
+				<tbody>
+				<tr>
+					<td>数据库类型</td>
+					<td class="version">${@Global.getConfig('jdbc.type')}</td>
+				</tr>
+				<tr>
+					<td>数据库URL</td>
+					<td class="author">${@Global.getConfig('jdbc.url')}</td>
+				</tr>
+				<tr>
+					<td>数据库用户名</td>
+					<td class="homePage">${@Global.getConfig('jdbc.username')}</td>
+				</tr>
+				<tr>
+					<td>数据库密码</td>
+					<td class="server">${@Global.getConfig('jdbc.password')}</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="layui-col-lg6 layui-col-md12">
+			<blockquote class="layui-elem-quote title">系统基本参数</blockquote>
+			<table class="layui-table magt0">
+				<colgroup>
+					<col width="150">
+					<col>
+				</colgroup>
+				<tbody>
+				<tr>
+					<td>redis前缀</td>
+					<td class="version">${@Global.getConfig('redis.keyPrefix')}</td>
+				</tr>
+				<tr>
+					<td>redis-host</td>
+					<td class="author">${@Global.getConfig('redis.host')}</td>
+				</tr>
+				<tr>
+					<td>redis端口</td>
+					<td class="homePage">${@Global.getConfig('redis.port')}</td>
+				</tr>
+				<tr>
+					<td>redis密码</td>
+					<td class="server">${@Global.getConfig('redis.password')}</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<%}%>

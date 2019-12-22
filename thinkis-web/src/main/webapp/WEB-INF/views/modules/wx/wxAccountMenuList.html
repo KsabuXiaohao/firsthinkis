@@ -1,0 +1,199 @@
+<%
+var headerPart = {
+%>
+<% include("/include/treetable.html",{title:"公众号菜单管理"}){} %>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var tpl = $("#treeTableTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
+        var data = ${@JsonMapper.toJsonString(list)}, ids = [], rootIds = [];
+        for (var i=0; i<data.length; i++){
+            ids.push(data[i].id);
+        }
+        ids = ',' + ids.join(',') + ',';
+        for (var i=0; i<data.length; i++){
+            if (ids.indexOf(','+data[i].parentId+',') == -1){
+                if ((','+rootIds.join(',')+',').indexOf(','+data[i].parentId+',') == -1){
+                    rootIds.push(data[i].parentId);
+                }
+            }
+        }
+        for (var i=0; i<rootIds.length; i++){
+            addRow("#treeTableList", tpl, data, rootIds[i], true);
+        }
+        $("#treeTable").treeTable({expandLevel : 5});
+    });
+    function addRow(list, tpl, data, pid, root){
+        for (var i=0; i<data.length; i++){
+            var row = data[i];
+            if ((${@StringUtils.jsGetVal('row.parentId')}) == pid){
+                $(list).append(Mustache.render(tpl, {
+                    dict: {
+                        blank123:0}, pid: (root?0:pid), row: row
+                }));
+                addRow(list, tpl, data, row.id);
+            }
+        }
+    }
+    function createMenu(){
+        layer.confirm('确定替换微信现有的菜单？', {icon: 3, title: '提示信息'}, function (index) {
+            var pubid = "${wxAccountMenu.pubid}";
+            $.ajax({
+                url:"${ctx}/wx/wxAccountMenu/createMenu/"+pubid,
+                type: 'POST',
+                success: function(result) {
+                    if(result=="success"){
+                        layer.msg("生成微信菜单成功");
+                    }
+                    layer.close(index);
+                },
+                error:function(){
+                    layer.msg("生成微信菜单成功");
+                    layer.close(index);
+                }
+            });
+        });
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<div class="kit-table">
+		<form id="searchForm" class="layui-form" action="${ctx}/wx/wxAccountMenu/" method="post" lay-filter="kit-search-form">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("wx:wxAccountMenu:edit")){%>
+					<a class="layui-btn layui-btn-normal addwxAccountMenu_btn"><i class="layui-icon">&#xe608;</i>新增</a>
+					<a class="layui-btn layui-btn-normal" onclick="createMenu()">发布菜单</a>
+					<%}%>
+					<div class="layui-input-inline">
+						<div class="layui-input-inline">
+							<select name="pubid" lay-filter="pubid" lay-verify="">
+								<option value="1" <%if(wxAccountMenu.pubid=="1"){%>selected<%}%>>公众号1</option>
+								<option value="2" <%if(wxAccountMenu.pubid=="2"){%>selected<%}%>>公众号2</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="kit-search-inputs clearfix">
+					<div class="kit-search-keyword">
+						<input type="text" class="layui-input" id="keyword" name="keyword" placeholder="菜单名称" />
+						<button class="search_btn" lay-submit><i class="layui-icon">&#xe615;</i></button>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div class="kit-table-body" >
+			<table id="treeTable" class="layui-table table-condensed">
+				<thead>
+				<tr>
+					<th>菜单名称</th>
+					<th>菜单键值</th>
+					<th>事件名称</th>
+					<th>是否需授权</th>
+					<th>更新时间</th>
+					<%if(shiro.hasPermission("wx:wxAccountMenu:edit")){%><th width="200px">操作</th><%}%>
+				</tr>
+				</thead>
+				<tbody id="treeTableList"></tbody>
+			</table>
+			<script type="text/template" id="treeTableTpl">
+				<tr id="{{row.id}}" pId="{{pid}}">
+					<td>
+						{{row.name}}
+					</td>
+					<td >
+						{{row.eventKey}}
+					</td>
+					<td>
+						{{row.type}}
+					</td>
+					<td>
+						{{row.oauthLabel}}
+					</td>
+					<td>
+						{{row.updateDate}}
+					</td>
+					<%if(shiro.hasPermission("wx:wxAccountMenu:edit")){%>
+					<td>
+						<a class="layui-btn layui-btn-xs layui-btn" onclick="editwxAccountMenu('{{row.id}}')">修改</a>
+						<a class="layui-btn layui-btn-xs layui-btn layui-btn-danger" onclick="delwxAccountMenu('{{row.id}}')" >删除</a>
+						<a class="layui-btn layui-btn-xs layui-btn layui-btn-primary" onclick="addChildwxAccountMenu('{{row.id}}')">添加下级菜单</a>
+					</td>
+					<%}%>
+				</tr>
+			</script>
+		</div>
+	</div>
+</div>
+<script>
+    layui.use(['form','layer','laydate','table','laytpl'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery,
+            laydate = layui.laydate,
+            laytpl = layui.laytpl,
+            table = layui.table;
+
+        form.render(null, 'kit-search-form');
+        $('#kit-search-more').on('click', function() {
+            $('.kit-search-mored').toggle();
+        });
+
+        //添加
+        editwxAccountMenu = function(id){
+            var index = layui.layer.open({
+				title : "添加公众号菜单",
+				type : 2,
+				maxmin:true,
+				maxmin:true,
+				content : "${ctx}/wx/wxAccountMenu/form?id="+id,
+				area: ['50%', '65%'],
+                <%if(shiro.hasPermission("wx:wxAccountMenu:edit")){%>
+                btn: ['保存', '取消'],
+                    yes: function(index, layero) {
+                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                    iframeWin.saveForm();
+                }
+            <%}%>
+        })
+        }
+
+        $(".addwxAccountMenu_btn").click(function(){
+            var id = '${wxAccountMenu.id}';
+            editwxAccountMenu(id);
+        })
+
+        //添加下级数据
+        addChildwxAccountMenu = function(id){
+            var index = layui.layer.open({
+				title : "添加下级公众号菜单",
+				type : 2,
+				content : "${ctx}/wx/wxAccountMenu/form?parent.id="+id,
+				area: ['50%', '65%'],
+                <%if(shiro.hasPermission("wx:wxAccountMenu:edit")){%>
+                btn: ['保存', '取消'],
+                    yes: function(index, layero) {
+                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                    iframeWin.saveForm();
+                }
+            <%}%>
+        })
+        }
+
+        //删除
+        delwxAccountMenu = function(id){
+            layer.confirm('确定删除选中数据？',{icon:3, title:'提示信息'},function(index){
+                $.post("${ctx}/wx/wxAccountMenu/delete",{id:id},function(result){
+                    if(result.code=="0"){
+                        layer.msg("删除成功");
+                    }else{
+                        layer.msg("删除失败");
+                    }
+                    location.reload();
+                    layer.close(index);
+                });
+            });
+        }
+    })
+</script>
+<%}%>

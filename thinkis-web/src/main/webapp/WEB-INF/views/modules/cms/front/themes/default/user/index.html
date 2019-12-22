@@ -1,0 +1,56 @@
+<% layout("../_layout.html",{nav:'fly'}){ %>
+<div class="layui-container fly-marginTop fly-user-main">
+  <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="user">
+    <li class="layui-nav-item">
+      <a href="${ctxFront}/set-${site.id}.html">
+        <i class="layui-icon">&#xe609;</i>
+        我的资料
+      </a>
+    </li>
+    <li class="layui-nav-item layui-this">
+      <a href="${ctxFront}/userIndex-${site.id}.html">
+        <i class="layui-icon">&#xe612;</i>
+        用户中心
+      </a>
+    </li>
+  </ul>
+
+  <div class="site-tree-mobile layui-hide">
+    <i class="layui-icon">&#xe602;</i>
+  </div>
+  <div class="site-mobile-shade"></div>
+
+  <div class="site-tree-mobile layui-hide">
+    <i class="layui-icon">&#xe602;</i>
+  </div>
+  <div class="site-mobile-shade"></div>
+
+  <div class="fly-panel fly-panel-user" pad20>
+    <div class="layui-tab layui-tab-brief" lay-filter="user">
+      <ul class="layui-tab-title" id="LAY_mine">
+        <li data-type="mine-jie" lay-id="index" class="layui-this">我发的帖</li>
+      </ul>
+      <div class="layui-tab-content" style="padding: 20px 0;">
+        <div class="layui-tab-item layui-show">
+          <ul class="mine-view jie-row">
+            <%
+            var posts = @CmsUtils.getArticleList(site.id,'809df88939b047c3b78d6bf6ef26acd6',50,"myArticles:1");
+            for(var post in posts){
+            %>
+            <li>
+              <a class="jie-title" href="${post.url}" target="_blank">${post.title}</a>
+              <i>${post.updateDate,dateFormat="yyyy/MM/dd HH:mm:ss"}</i>
+              <em>${post.hits}阅/${post.commentCount}答</em>
+            </li>
+            <%}%>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    layui.cache.page = 'user';
+</script>
+<%}%>

@@ -1,0 +1,21 @@
+<% layout("/layouts/micro.html"){ %>
+<table class="layui-table">
+	<%for(act in histoicFlowList){%>
+		<tr>
+			<td>
+				<div style="font-weight: bold;">${act.histIns.activityName}:</div>
+				<%if(has(act.histIns.endTime)){%>
+					<div style="text-indent:35px;line-height: 30px;">${act.comment}</div>
+					<div align="right">${act.assigneeName}&nbsp;<b>${act.histIns.endTime,dateFormat="yyyy-MM-dd HH:mm"}</b></div>
+				<%}%>
+			</td>
+		</tr>
+	<%}%>
+</table>
+<script>
+	function showDetail(comment){
+		var html = "<div style='margin:10px'>"+comment+"</div>";
+		layui.open(html, {title:"意见详情",width:500,height:400, buttons:{"关闭":true}});
+	}
+</script>
+<%}%>

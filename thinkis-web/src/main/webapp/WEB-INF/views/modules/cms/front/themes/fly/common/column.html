@@ -1,0 +1,21 @@
+<div class="fly-panel fly-column">
+  <div class="layui-container">
+    <ul class="layui-clear">
+      <li class="layui-hide-xs <%if(currentId == ''){%>layui-this<%}%>"><a href="${ctxFront}/index-fly${@Global.getUrlSuffix()}">首页</a></li>
+      <%
+      var categorys = @CmsUtils.getCategoryList(siteId,categoryId,5,"");
+      for(var category in categorys){
+      %>
+      <li class="<%if(currentId == category.id){%>layui-this<%}%>"><a href="${ctxFront}/list-${category.id}${@Global.getUrlSuffix()}">${category.name}</a></li>
+      <%}%>
+
+    </ul>
+    
+    <div class="fly-column-right layui-hide-xs"> 
+      <a href="${ctxFront}/add-${site.id}.html" class="layui-btn">发表新帖</a>
+    </div> 
+    <div class="layui-hide-sm layui-show-xs-block" style="margin-top: -10px; padding-bottom: 10px; text-align: center;"> 
+      <a href="${ctxFront}/add-${site.id}.html" class="layui-btn">发表新帖</a>
+    </div> 
+  </div>
+</div>

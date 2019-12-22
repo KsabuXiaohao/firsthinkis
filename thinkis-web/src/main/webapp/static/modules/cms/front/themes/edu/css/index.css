@@ -1,0 +1,105 @@
+﻿.layui-elem-quote {
+    background-color: #ffffff;
+}
+.fly-nav a i {
+    position: absolute;
+    left: 25px;
+    top: 0;
+    padding-right: 10px;
+    font-size: 26px;
+}
+.ad{
+    margin-top: 100px;
+}
+.ad_title{
+    text-align: center;
+    font-size: 50px;
+    font-weight: 600;
+    color: #ffffff;
+}
+.ad_body{
+    text-align: center;
+    font-size: 25px;
+    font-weight: 300;
+    color: #dddddd;
+}
+.ad_bottom{
+    margin-top: 10px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 300;
+    color: #ccc;
+}
+.enterprise{
+    margin-left: 15px;
+}
+.site-h2 {
+    margin-bottom: 0px;
+    line-height: 60px;
+    padding-bottom: 0px;
+    color: #393D49;
+    border-bottom: 0px solid #eee;
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+}
+.site-h3 {
+    margin-bottom: 0px;
+    line-height: 50px;
+    padding-bottom: 0px;
+    padding-top: 10px;
+    color: #666;
+    border-bottom: 0px solid #eee;
+    font-size: 18px;
+    font-weight: 400;
+    text-align: center;
+}
+.fly-header .layui-nav {
+    padding: 0;
+    background: none;
+    text-align: right;
+}
+
+.layui-badge-rim{
+    font-size: 16px;
+}
+.fly-zanzhu {
+    display: block;
+    position: relative;
+    height: 60px;
+    line-height: 50px;
+    margin-top: 10px;
+    padding: 0 20px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 300;
+    background-color: #009688;
+    color: #fff;
+}
+
+.fly-header .fly-nav a {
+    padding: 0 15px;
+    text-align: left;
+}
+table>thead>tr{
+    background-color: #4db151 !important;
+    color: #fff;
+}
+table>thead>tr>th{
+    text-align: center !important;
+    font-size: 16px !important;
+}
+table>tbody>tr>td{
+    text-align: center !important;
+}
+.vs{
+    color: #6390da;
+    font-size: 32px;
+}
+.vs1{
+    font-weight: 300;
+    color: #777;
+}
+.icon-you{
+    color:#4db151;
+}

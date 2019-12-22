@@ -1,0 +1,105 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+  <!--<ul class="layui-tab-title">
+    <li class="layui-this"><a href="${ctx}/sys/user/info">个人信息</a></li>
+    <li><a href="${ctx}/sys/user/modifyPwd">修改密码</a></li>
+  </ul>-->
+  <div class="layui-tab-content">
+     <#message content="${message!}" />
+   	 <form id="inputForm" action="${ctx}/sys/user/info" method="post" class="layui-form">
+		 <div class="layui-row layui-col-space10">
+			 <div class="layui-col-md2">
+				 <div class="layui-card">
+					 <div class="layui-card-header">头像</div>
+					 <div class="layui-card-body">
+						 <#avatarUpload id="nameImage" name="photo" value="${user.photo}"  width="150px" height="150px" required="true"/>
+					 </div>
+				 </div>
+			 </div>
+			 <div class="layui-col-md10">
+				 <div class="layui-card">
+					 <div class="layui-card-body">
+						<div class="layui-row">
+							<div class="layui-col-md10">
+								<div class="layui-row layui-col-space15 layui-form-item">
+									<div class="layui-col-md6">
+										<label class="layui-form-label">归属公司:</label>
+										<div class="layui-input-block">
+											<div class="layui-form-mid">${user.company.name}</div>
+										</div>
+									</div>
+									<div class="layui-col-md6">
+										<label class="layui-form-label">归属部门:</label>
+										<div class="layui-input-block">
+											<div class="layui-form-mid">${user.office.name}</div>
+										</div>
+									</div>
+								</div>
+								<div class="layui-row layui-col-space15 layui-form-item">
+									   <div class="layui-col-md6">
+										<label class="layui-form-label">姓名:</label>
+										<div class="layui-input-block">
+											<input type="hidden" name="name" value="${user.name}">
+											<div class="layui-form-mid">${user.name}</div>
+										</div>
+									</div>
+									<div class="layui-col-md6">
+										<label class="layui-form-label">邮箱:</label>
+										<div class="layui-input-block">
+											<input type="email" name="email" value="${user.email}" class="layui-input email"/>
+										</div>
+									</div>
+								</div>
+								<div class="layui-row layui-col-space15 layui-form-item">
+									<div class="layui-col-md6">
+										<label class="layui-form-label">电话:</label>
+										<div class="layui-input-block">
+											<input type="text" name="phone" value="${user.phone}" class="layui-input"/>
+										</div>
+									</div>
+									<div class="layui-col-md6">
+										<label class="layui-form-label">手机:</label>
+										<div class="layui-input-block">
+											<input type="text" name="mobile" value="${user.mobile}" class="layui-input"/>
+										</div>
+									</div>
+								</div>
+								<div class="layui-form-item layui-form-text">
+									<label class="layui-form-label">备注:</label>
+									<div class="layui-input-block">
+										<textarea name="remarks" class="layui-textarea">${user.remarks}</textarea>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">用户类型:</label>
+									<div class="layui-input-block">
+										<label class="layui-form-mid">${@DictUtils.getDictLabel(user.userType, 'sys_user_type', '无')}</label>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">用户角色:</label>
+									<div class="layui-input-block">
+										<label class="layui-form-mid">${user.roleNames}</label>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<label class="layui-form-label">上次登录:</label>
+									<div class="layui-input-block">
+										<label class="layui-form-mid">IP: ${user.oldLoginIp}&nbsp;&nbsp;&nbsp;&nbsp;时间：${user.oldLoginDate,dateFormat="yyyy-MM-dd HH:mm:ss"}</label>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<div class="layui-input-block">
+										<button class="layui-btn" lay-filter="*" lay-submit>保 存</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					 </div>
+				 </div>
+		  	</div>
+     	</div>
+	 </form>
+  </div>
+</div>      
+<% } %>

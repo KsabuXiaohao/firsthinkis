@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>viewForm</name>
+	<filePath>src/main/webapp/WEB-INF/views/${lastPackageName}/${moduleName}/${subModuleName}</filePath>
+	<fileName>${className}Form.html</fileName>
+	<content><![CDATA[
+<% layout("/layouts/micro.html",{title:"${functionNameSimple}管理"}){ %>
+<div class="childrenBody">
+<div class="layui-tab layui-tab-brief">
+	<form id="inputForm"  action="${r"${ctx}"}/${urlPrefix}/save" method="post" class="layui-form layui-form-pane">
+		<input type="hidden" name="id" value="${"$"}{${className}.id!}"/>
+		<#list table.columnList as c>
+			<#if c.isEdit?? && c.isEdit == "1" && (c.isNotBaseField || c.simpleJavaField == 'remarks')>
+		<div class="layui-form-item">
+			<label class="layui-form-label">${c.comments}：</label>
+			<div class="layui-input-block">
+			<#if c.showType == "input">
+				<input name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" htmlEscape="false"<#if c.dataLength != "0"> maxlength="${c.dataLength}"</#if> class="layui-input <#if c.javaType == "Long" || c.javaType == "Integer"> digits</#if><#if c.javaType == "Double"> number</#if>" <#if c.isNull != "1">lay-verify="required"</#if>/>
+			<#elseif c.showType == "textarea">
+				<textarea name="${c.javaFieldId}" htmlEscape="false" rows="4"<#if c.dataLength != "0"> maxlength="${c.dataLength}"</#if> class="layui-textarea" <#if c.isNull != "1">lay-verify="required"</#if>>${"$"}{${className}.${c.javaFieldId}!}</textarea>
+			<#elseif c.showType == "select">
+				<select name="${c.javaFieldId}" class="layui-input" <#if c.isNull != "1">lay-verify="required"</#if>>
+					<option value="" label="全部"/>
+					<<#noparse>#</#noparse>options items="${"$"}{@DictUtils.getDictList('${c.dictType}')}" value="${"$"}{${className}.${c.javaFieldId}!}"/>
+				</select>
+			<#elseif c.showType == "checkbox">
+				<<#noparse>#</#noparse>checkboxes name="${c.javaFieldId}" items="${"$"}{@DictUtils.getDictList('${c.dictType}')}" value="${"$"}{${className}.${c.javaFieldId}!}"/>
+			<#elseif c.showType == "radiobox">
+				<<#noparse>#</#noparse>radio name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" items="${"$"}{@DictUtils.getDictList('${c.dictType}')}" />
+			<#elseif c.showType == "dateselect">
+				<input class="layui-input" id="${c.javaFieldId}" name="${c.javaFieldId}" placeholder="" type="text">
+				<script>
+                    layui.use('laydate', function() {
+                        var laydate = layui.laydate;
+                        laydate.render({
+                            elem: '#${c.javaFieldId}',
+                            value:'${"$"}{${className}.${c.javaFieldId},dateFormat="yyyy-MM-dd HH:mm:ss"}'
+                        });
+                    })
+				</script>
+			<#elseif c.showType == "userselect">
+				<<#noparse>#</#noparse>treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}!}"
+					title="用户" url="/sys/office/treeData?type=3" cssClass="<#if c.isNull != "1">required</#if>" allowClear="true" notAllowSelectParent="true"/>
+			<#elseif c.showType == "officeselect">
+				<<#noparse>#</#noparse>treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}!}"
+					title="部门" url="/sys/office/treeData?type=2" cssClass="<#if c.isNull != "1">required</#if>" allowClear="true" notAllowSelectParent="true"/>
+			<#elseif c.showType == "areaselect">
+				<<#noparse>#</#noparse>treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}!}"
+					title="区域" url="/sys/area/treeData" cssClass="<#if c.isNull != "1">required</#if>" allowClear="true" notAllowSelectParent="true"/>
+			<#elseif c.showType == "fileselect">
+				<input type="hidden" id="${c.simpleJavaField}" name="${c.javaFieldId}" htmlEscape="false"<#if c.dataLength != "0"> maxlength="${c.dataLength}"</#if> />
+				<<#noparse>#</#noparse>ckfinder input="${c.simpleJavaField}" type="files" uploadPath="/${moduleName}<#if subModuleName != "">/${subModuleName}</#if>/${className}" selectMultiple="true" readonly="false"/>
+			</#if>
+			</div>
+		</div>
+			</#if>
+		</#list>
+		<div class="layui-form-item layui-hide">
+	    	<div class="layui-input-block">
+	    		<%if(shiro.hasPermission("${permissionPrefix}:edit")){%>
+      				<button class="layui-btn" lay-filter="addData" id="addData" lay-submit>保 存</button>
+      			<%}%>
+		    </div>
+	  	</div>
+	</form>
+	</div>
+</div>
+	<script>
+		layui.use(['form', 'laydate'], function() {
+			var form = layui.form, laydate = layui.laydate;
+			form.on("submit(addData)",function(data){
+				var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+				var actionUrl = $("#inputForm").attr("action");
+				var formData = $("#inputForm").serialize();//序列化表格内容为字符串  
+			    $.ajax({  
+			        type:'post',      
+			        url:actionUrl,  
+			        data:formData,  
+			        cache:false,  
+			        dataType:'json',  
+			        success:function(result){  
+		        	 	top.layer.close(index);
+			        	top.layer.msg(result.msg);
+				 		parent.layui.layer.closeAll();
+                        //刷新父页面
+                        parent.layui.table.reload("${className}ListTable");
+			        }  
+			    });
+				return false;
+		 	})
+		});
+	</script>
+<%}%>]]>
+	</content>
+</template>

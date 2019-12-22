@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>${@Global.getConfig('productName')}</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="${ctxStatic}/micro/plugins/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="${ctxStatic}/micro/src/css/login.2.css" media="all" />
+    <script type="text/javascript" src="${ctxStatic}/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            // 如果在框架或在对话框中，则弹出提示并跳转到首页
+            if (self.frameElement && self.frameElement.tagName == "IFRAME") {
+                console.log('未登录或登录超时。请重新登录，谢谢！');
+                top.location = "${ctx}";
+            }
+        });
+    </script>
+</head>
+<body>
+<div class="login-main layui-container">
+    <div class="login-box layui-row">
+        <div class="login-box-left layui-col-xs6 layui-hide-xs">
+            <h1 class="login-box-left-title">${@Global.getConfig('productName')}</h1>
+            <div class="login-box-logo">
+                <div class="<!--login-box-logo1-->"></div>
+            </div>
+        </div>
+        <div class="login-box-right layui-col-xs6 ">
+            <div class="login-box-form">
+                <h3 CLASS="login-box-right-title">用户登录</h3>
+                <form class="layui-form" action="${ctx}/login" method="post">
+                    <input type="hidden" name="loginType" value="admin">
+                    <div class="layui-form-item">
+                        <i class="layui-icon"><img src="${ctxStatic }/images/email.png"/></i>
+                        <div class="login-input">
+                            <input type="text" name="username" lay-verify="required" autocomplete="off" placeholder="输入账号" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <i class="layui-icon"><img src="${ctxStatic }/images/code.png"/></i>
+                        <div class="login-input">
+                            <input type="password" name="password" lay-verify="required" autocomplete="off" placeholder="输入密码" class="layui-input">
+                        </div>
+                    </div>
+                    <%if(has(isValidateCodeLogin)&&isValidateCodeLogin==true){%>
+                    <div class="layui-form-item">
+                        <div class="kit-login-col" id="imgCode">
+                            <#validateCode name="validateCode" inputCssStyle="layui-input;float:left;" imageCssStyle="height:36px;width:120px;" buttonCssStyle="display:none;"/>
+                        </div>
+                    </div>
+                    <%}%>
+                    <div class="layui-form-item">
+                        <button class="layui-btn login-btn" lay-submit="submit" lay-filter="login">登录</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="${ctxStatic }/micro/plugins/polyfill.min.js"></script>
+<script type="text/javascript" src="${ctxStatic }/micro/plugins/layui/layui.js"></script>
+
+<script>
+    layui.use(['form','layer','jquery'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery;
+
+        var message = '${message!}';
+        $(document).ready(function() {
+            if(message){
+                layer.msg(message, {icon: 5});
+            }
+        })
+
+        //表单验证
+        form.verify({
+            validatecode: function(value, item){ //value：表单的值、item：表单的DOM对象
+                var msg = "";
+                $.ajax({
+                    type : "get",
+                    url : "${ctxPath}/servlet/validateCodeServlet?validateCode="+value,
+                    async : false,
+                    success : function(data){
+                        if(data=='false'){
+                            msg="验证码错误,请重试";
+                        }
+                    }
+                });
+                return msg;
+            }
+        })
+
+
+        //第三方登录认证
+        $(".loginBody .seraph").click(function(){
+            layer.msg("登录验证，请稍后...",{icon: 16,time:false,shade:0.8});
+            var urlVal = $(this).data("url");
+            window.location.href = urlVal;
+        })
+
+    })
+</script>
+</body>
+</html>

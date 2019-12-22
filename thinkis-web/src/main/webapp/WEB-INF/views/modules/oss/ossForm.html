@@ -1,0 +1,87 @@
+<% layout("/layouts/micro.html"){ %>
+<div class="childrenBody">
+<div class="layui-tab layui-tab-brief">
+	<form id="inputForm" action="${ctx}/oss/oss/save" method="post" class="layui-form layui-form-pane">
+		<input type="hidden" id="id" name="id" value="${oss.id }">
+		<div class="layui-row layui-col-space15 layui-form-item">
+			<div class="layui-col-md6">
+				<div class="layui-form-item">
+					<div class="layui-upload-drag" id="test10">
+					  <i class="layui-icon">&#xe67c;</i>
+					  <p>点击上传，或将文件拖拽到此处</p>
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">文件名称：</label>
+					<div class="layui-input-inline">
+						<input type="text" name="fileName" value="${oss.fileName}" htmlEscape="false" maxlength="255" class="layui-input " />
+					</div>
+				</div>
+				<div class="layui-form-item">
+					<label class="layui-form-label">状态：</label>
+					<div class="layui-input-inline">
+						<#radio name="status" items="${@DictUtils.getDictList('yes_no')}" value="${oss.status}" />
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="layui-form-item layui-form-text">
+			<label class="layui-form-label">备注信息：</label>
+			<div class="layui-input-block">
+				<textarea name="remarks" htmlEscape="false" rows="4" maxlength="255" class="layui-textarea" >${oss.remarks}</textarea>
+			</div>
+		</div>
+		<div class="layui-form-item">
+	    	<div class="layui-input-block">
+	    		<%if(shiro.hasPermission("oss:oss:edit")){%>
+      				<button class="layui-btn" lay-filter="addData" lay-submit>保 存</button>
+      			<%}%>
+		    </div>
+	  	</div>
+	</form>
+	</div>
+</div>
+	<script>
+		layui.use(['form', 'laydate','upload'], function() {
+			var form = layui.form, laydate = layui.laydate,upload=layui.upload;
+			form.on("submit(addData)",function(data){
+				var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+				var actionUrl = $("#inputForm").attr("action");
+				var formData = $("#inputForm").serialize();//序列化表格内容为字符串  
+			    $.ajax({  
+			        type:'post',      
+			        url:actionUrl,  
+			        data:formData,  
+			        cache:false,  
+			        dataType:'json',  
+			        success:function(result){  
+		        	 	top.layer.close(index);
+			        	top.layer.msg(result.msg);
+			        	layer.closeAll("iframe");
+			        	//刷新父页面
+				 		parent.location.reload();
+			        }  
+			    });
+				return false;
+		 	})
+			//拖拽上传
+		  	upload.render({
+			    elem: '#test10'
+			    ,field:'attach'
+			    ,url: '${ctx}/file/uploadFile'
+		    	,accept: 'file' //普通文件
+			    ,done: function(res){
+			    	if(res.code==0){
+			    		Common.success("文件上传成功");
+			    		$("#id").val(res.data.id);
+			    	}else{
+			    		Common.error("文件上传失败");
+			    	}
+			    }
+			    ,error:function(){
+			    	Common.error("文件上传失败");
+			    }
+		  	});
+		});
+	</script>
+<%}%>

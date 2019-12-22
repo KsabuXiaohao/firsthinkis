@@ -1,0 +1,86 @@
+<%
+var headerPart = {
+%>
+<style>
+	.layui-table-page{
+		padding: 7px 0 0;
+	}
+</style>
+<script type="text/javascript">
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+
+<div class="childrenBody">
+	<div class="kit-table">
+		<form id="searchForm" action="${ctx}/cms/comment/" method="post" class="layui-form layui-card-header layuiadmin-card-header-auto">
+			<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+			<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">文档标题：</label>
+					<div class="layui-input-block">
+						<input type="text" name="title"  htmlEscape="false" maxlength="50" class="layui-input"/>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">状态</label>
+					<div class="layui-input-block">
+						<#radio items="${@DictUtils.getDictList('cms_del_flag')}" name="delFlag" value="${comment.delFlag}"/>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-useradmin" lay-submit="" lay-filter="LAY-enrollList-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+		</form>
+		<div class="kit-table-body">
+			<table id="contentTable" class="layui-table" >
+				<thead>
+					<tr>
+						<th style="text-align:center">评论内容</th>
+						<th style="text-align:center">文档标题</th>
+						<th style="text-align:center">评论人</th>
+						<th style="text-align:center">评论IP</th>
+						<th style="text-align:center">评论时间</th>
+						<th nowrap="nowrap" style="text-align:center">操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<%for(comment in page.list){%>
+					<tr>
+						<td style="text-align:left"><a href="javascript:" onclick="$('#c_${comment.id}').toggle()">${@StringUtils.abbr(@StringUtils.replaceHtml(comment.content),40)}</a></td>
+						<td style="text-align:left"><a href="${ctxFront}/view-${comment.category.id}-${comment.contentId}${@Global.getUrlSuffix()}" title="${comment.title}" target="_blank">${@StringUtils.abbr(comment.title,40)}</a></td>
+						<td style="text-align:center">${comment.name}</td>
+						<td style="text-align:center">${comment.ip}</td>
+						<td style="text-align:center">${comment.createDate,dateFormat="yyyy-MM-dd HH:mm:ss"}</td>
+						<td style="text-align:center">
+							<%if(shiro.hasPermission("cms:comment:edit")){%>
+								<%if(comment.delFlag != '2'){%>
+									<a class="layui-btn layui-btn layui-btn-sm" href="${ctx}/cms/comment/delete?id=${comment.id}${comment.delFlag != '0'?'&isRe=true':''}"
+										onclick="return confirmx('确认要${comment.delFlag != '0'?'恢复审核':'删除'}该审核吗？', this.href)">${comment.delFlag != '0'?'恢复审核':'删除'}</a>
+								<%}else{%>
+									<a href="${ctx}/cms/comment/save?id=${comment.id}">审核通过</a>
+								<%}%>
+							<%}%>
+						</td>
+					</tr>
+					<tr id="c_${comment.id}" style="background:#fdfdfd;display:none;"><td colspan="6">${@StringUtils.replaceHtml(comment.content)}</td></tr>
+					<%}elsefor{%>
+					<tr><td colspan="6" align="center">暂无数据</td></tr>
+					<%}%>
+				</tbody>
+			</table>
+			<div class="pagination">${page}</div>
+		</div>
+	</div>
+</div>
+<%}%>

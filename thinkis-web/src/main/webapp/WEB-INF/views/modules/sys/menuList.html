@@ -1,0 +1,128 @@
+<%
+var headerPart = {
+%>
+<% include("/include/treetable.html"){} %>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#treeTable").treeTable({expandLevel : 2}).show();
+    });
+    function updateSort() {
+        layer.load(0, {shade: false});
+        $("#listForm").attr("action", "${ctx}/sys/menu/updateSort");
+        $("#listForm").submit();
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<#message content="${message!}"/>
+		<form id="listForm" method="post" class="layui-form ">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("sys:menu:edit")){%>
+					<a class="layui-btn layui-btn-normal LAY_ADD_menu_btn"><i class="layui-icon">&#xe608;</i>菜单添加</a>
+					<input id="btnSubmit" class="layui-btn btn-primary" type="button" value="保存排序" onclick="updateSort();"/>
+					<%}%>
+				</div>
+			</div>
+			<table id="treeTable" class="layui-table" >
+				<thead>
+					<tr>
+						<th>名称</th><th>链接</th><th style="text-align:center;">排序</th><th>可见</th><th>权限标识</th>
+						<%if(shiro.hasPermission("sys:menu:edit")){%><th width="200px">操作</th><%}%>
+					</tr>
+				</thead>
+				<tbody>
+				<%for(menu in list){%>
+					<tr id="${menu.id}" pId="${menu.parent.id != '1'?menu.parent.id:'0'}">
+						<td nowrap><i class="${isNotEmpty(menu.icon)?menu.icon:' hide'}"></i><a onclick="editMenu('${menu.id}')" href="javascript:void(0);">${menu.name}</a></td>
+						<td title="${menu.href}">${@StringUtils.abbr(menu.href,30)}</td>
+						<td style="text-align:center;">
+							<%if(shiro.hasPermission("sys:menu:edit")){%>
+								<input type="hidden" name="ids" value="${menu.id}"/>
+								<input name="sorts" type="text" value="${menu.sort}" class="layui-input" style="width:50px!important;margin:0!important;padding:0!important;text-align:center;line-height: 20px!important;height: 20px!important;">
+							<%}%>
+							<%if(shiro.lacksPermission("sys:menu:edit")){%>
+								${menu.sort}
+							<%}%>
+						</td>
+						<td>${menu.isShow == '1'?'显示':'隐藏'}</td>
+						<td title="${menu.permission}">${@StringUtils.abbr(menu.permission,30)}</td>
+						<%if(shiro.hasPermission("sys:menu:edit")){%>
+						<td nowrap>
+							<a  class="layui-btn layui-btn-xs" onclick="editMenu('${menu.id}')"  href="javascript:void(0);">修改</a>
+							<a  class="layui-btn layui-btn-xs" onclick="addNextMenu('${menu.id}')" href="javascript:void(0);">添加下级菜单</a>
+							<a  class="layui-btn layui-btn-danger layui-btn-xs"  href="${ctx}/sys/menu/delete?id=${menu.id}" onclick="return confirmx('要删除该菜单及所有子菜单项吗？', this.href)">删除</a>
+						</td>
+						<%}%>
+					</tr>
+				<% } %>
+				</tbody>
+			</table>
+		 </form>
+	</div>
+</div>
+<script>
+    layui.use(['form','layer'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery;
+        //添加
+        $(".LAY_ADD_menu_btn").click(function(){
+            var index = layui.layer.open({
+                title : "添加菜单",
+                type : 2,
+                content : "${ctx}/sys/menu/form",
+                area: ['70%', '85%'],
+                <%if(shiro.hasPermission("sys:menu:edit")){%>
+                btn: ['确定', '取消'],
+                yes: function(index, layero) {
+                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                    iframeWin.saveForm();
+                },
+                end:function(){
+                    location.reload();
+                }
+				<%}%>
+            })
+        })
+    })
+    var editMenu = function(id){
+        var index = layui.layer.open({
+            title : "修改菜单",
+            type : 2,
+            content : "${ctx}/sys/menu/form?id="+id,
+            area: ['70%', '85%'],
+            <%if(shiro.hasPermission("sys:menu:edit")){%>
+            btn: ['确定', '取消'],
+                yes: function(index, layero) {
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                iframeWin.saveForm();
+            },
+            end:function(){
+                location.reload();
+            }
+        	<%}%>
+        })
+    }
+    var addNextMenu = function(id){
+        var index = layui.layer.open({
+            title : "添加下级菜单",
+            type : 2,
+            content : "${ctx}/sys/menu/form?parent.id="+id,
+            area: ['1000px', '600px'],
+            <%if(shiro.hasPermission("sys:menu:edit")){%>
+            btn: ['确定', '取消'],
+                yes: function(index, layero) {
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法;
+                iframeWin.saveForm();
+            },
+            end:function(){
+                location.reload();
+            }
+        	<%}%>
+        })
+    }
+</script>
+<%}%>

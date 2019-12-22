@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>${@Global.getConfig('productName')}</title>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="${ctxStatic}/micro/plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="${ctxStatic}/micro/src/css/login.css" media="all" />
+</head>
+<body>
+<div class="kit-login">
+	<div class="kit-login-bg"></div>
+	<div class="kit-login-wapper">
+		<h2 class="kit-login-slogan">欢迎使用 <br>${@Global.getConfig('productName')}</h2>
+		<div class="kit-login-form">
+			<h4 class="kit-login-title">登录</h4>
+			<form class="layui-form" action="${ctx}/login" method="post">
+				<input type="hidden" name="loginType" value="admin">
+				<div class="kit-login-row">
+					<div class="kit-login-col">
+						<i class="layui-icon">&#xe612;</i>
+						<span class="kit-login-input">
+                <input type="text" name="username" lay-verify="required" placeholder="用户名/邮箱/手机号" />
+              </span>
+					</div>
+					<div class="kit-login-col"></div>
+				</div>
+				<div class="kit-login-row">
+					<div class="kit-login-col">
+						<i class="layui-icon">&#xe64c;</i>
+						<span class="kit-login-input">
+                <input type="password" name="password" lay-verify="required" placeholder="密码" />
+              </span>
+					</div>
+					<div class="kit-login-col"></div>
+				</div>
+				<%if(has(isValidateCodeLogin)&&isValidateCodeLogin==true){%>
+				<div class="kit-login-row" >
+					<div class="kit-login-col" id="imgCode">
+						<#validateCode name="validateCode" inputCssStyle="layui-input;float:left;" imageCssStyle="height:36px;width:120px;" buttonCssStyle="display:none;"/>
+					</div>
+				</div>
+				<%}%>
+				<div class="kit-login-row">
+					<button class="layui-btn kit-login-btn" lay-submit="submit" lay-filter="login">登录</button>
+				</div>
+				<div class="kit-login-row" style="margin-bottom:0;flex-direction:row;">
+					<a href="javascript:;" style="color: rgb(153, 153, 153); text-decoration: none; font-size: 13px;width: 50%;float: left;" id="forgot">忘记密码？</a>
+					<a href="javascript:;" style="color: rgb(153, 153, 153); text-decoration: none; font-size: 13px;width: 50%;float: right;" id="register">去注册</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="${ctxStatic }/micro/plugins/polyfill.min.js"></script>
+<script type="text/javascript" src="${ctxStatic }/micro/plugins/layui/layui.js"></script>
+
+<script>
+    layui.use(['form','layer','jquery'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery;
+
+        var message = '${message!}';
+        $(document).ready(function() {
+            if(message){
+                layer.msg(message, {icon: 5});
+            }
+        })
+
+        //表单验证
+        form.verify({
+            validatecode: function(value, item){ //value：表单的值、item：表单的DOM对象
+                var msg = "";
+                $.ajax({
+                    type : "get",
+                    url : "${ctxPath}/servlet/validateCodeServlet?validateCode="+value,
+                    async : false,
+                    success : function(data){
+                        if(data=='false'){
+                            msg="验证码错误,请重试";
+                        }
+                    }
+                });
+                return msg;
+            }
+        })
+
+
+        //第三方登录认证
+        $(".loginBody .seraph").click(function(){
+            layer.msg("登录验证，请稍后...",{icon: 16,time:false,shade:0.8});
+            var urlVal = $(this).data("url");
+            window.location.href = urlVal;
+        })
+
+    })
+</script>
+</body>
+</html>

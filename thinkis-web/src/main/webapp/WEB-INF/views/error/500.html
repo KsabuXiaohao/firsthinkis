@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>500 - 服务异常</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="/static/micro/plugins/layui/css/layui.css">
+	<style>
+		.error-page {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			text-align: center;
+		}
+		.error-page-img {
+			min-width: 300px;
+			max-width: 100%;
+			max-height: 300px;
+		}
+		.error-page-info {
+			display: inline-block;
+			text-align: center;
+			vertical-align: middle;
+			padding-left: 30px;
+		}
+		.error-page-info h1 {
+			color: #434e59;
+			font-size: 72px;
+			font-weight: 600;
+			margin-bottom: 10px;
+		}
+		.error-page-info-desc {
+			color: #777;
+			font-size: 20px;
+			line-height: 28px;
+			margin-bottom: 16px;
+		}
+	</style>
+</head>
+<body>
+
+<div class="error-page">
+	<img class="error-page-img" src="/static/images/ic_500.svg">
+	<div class="error-page-info">
+		<h1>500</h1>
+		<div class="error-page-info-desc">抱歉，服务器开了个小差~</div>
+		<!--<div>
+			<button ew-href="page/console/console.html" class="layui-btn">返回首页</button>
+		</div>-->
+	</div>
+</div>
+
+</body>
+</html>

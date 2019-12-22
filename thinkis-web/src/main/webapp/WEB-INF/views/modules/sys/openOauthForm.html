@@ -1,0 +1,77 @@
+<% layout("/layouts/micro.html"){ %>
+<div class="childrenBody">
+<div class="layui-tab layui-tab-brief">
+	<form id="inputForm" action="${ctx}/sys/openOauth/save" method="post" class="layui-form layui-form-pane">
+		<input type="hidden" name="id" value="${openOauth.id}"/>
+		<div class="layui-form-item">
+			<label class="layui-form-label">access_token：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="accessToken" value="${openOauth.accessToken}" htmlEscape="false" maxlength="255" class="layui-input " />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">expire_in：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="expireIn" value="${openOauth.expireIn}" htmlEscape="false" maxlength="255" class="layui-input " />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">oauth_code：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="oauthCode" value="${openOauth.oauthCode}" htmlEscape="false" maxlength="255" class="layui-input " />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">认证类型：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="oauthType" value="${openOauth.oauthType}" htmlEscape="false" maxlength="10" class="layui-input " />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">ID：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="oauthUserId" value="${openOauth.oauthUserId}" htmlEscape="false" maxlength="255" class="layui-input " />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">refresh_token：</label>
+			<div class="layui-input-inline">
+				<input type="text" name="refreshToken" value="${openOauth.refreshToken}" htmlEscape="false" maxlength="255" class="layui-input " />
+			</div>
+		</div>
+		<div class="layui-form-item">
+	    	<div class="layui-input-block">
+	    		<%if(shiro.hasPermission("sys:openOauth:edit")){%>
+      				<button class="layui-btn" lay-filter="addData" lay-submit>保 存</button>
+      			<%}%>
+		    </div>
+	  	</div>
+	</form>
+	</div>
+</div>
+	<script>
+		layui.use(['form', 'laydate'], function() {
+			var form = layui.form, laydate = layui.laydate;
+			form.on("submit(addData)",function(data){
+				var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+				var actionUrl = $("#inputForm").attr("action");
+				var formData = $("#inputForm").serialize();//序列化表格内容为字符串  
+			    $.ajax({  
+			        type:'post',      
+			        url:actionUrl,  
+			        data:formData,  
+			        cache:false,  
+			        dataType:'json',  
+			        success:function(result){  
+		        	 	top.layer.close(index);
+			        	top.layer.msg(result.msg);
+			        	layer.closeAll("iframe");
+			        	//刷新父页面
+				 		parent.location.reload();
+			        }  
+			    });
+				return false;
+		 	})
+		});
+	</script>
+<%}%>

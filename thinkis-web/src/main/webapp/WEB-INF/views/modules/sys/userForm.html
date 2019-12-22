@@ -1,0 +1,181 @@
+<% layout("/layouts/micro.html",{background:"true"}){ %>
+<div class="childrenBody">
+	<div class="layui-tab-content">
+		<form id="inputForm"  action="${ctx}/sys/user/save" method="post" class="layui-form">
+			<input type="hidden" name="id" value="${user.id}"/>
+			<div class="layui-row layui-col-space10">
+				<div class="layui-col-md8">
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="#FF0000"> * </font>编号</label>
+								<div class="layui-input-block">
+									<input type="text" name="no" value="${user.no}" class="layui-input" lay-verify="required"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label"><font color="#FF0000"> * </font>姓名</label>
+									<div class="layui-input-block">
+										<input type="text" name="name" value="${user.name}"  class="layui-input" lay-verify="required"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label"><font color="#FF0000"> * </font>登录名</label>
+									<div class="layui-input-block">
+										<input id="oldLoginName" name="oldLoginName" type="hidden" value="${user.loginName}" class="layui-input layui-disabled" >
+										<input  type="text" name="loginName" value="${user.loginName}"  class="layui-input" lay-verify="required"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">邮箱</label>
+								<div class="layui-input-block">
+									<input type="email" name="email" value="${user.email}"  maxlength="100" class="layui-input"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><%if(isEmpty(user.id)){%><font color="#FF0000"> * </font><%}%>密码</label>
+								<div class="layui-input-inline">
+									<input id="newPassword" name="newPassword" type="password" value="" maxlength="50" class="layui-input" <%if(isEmpty(user.id)){%>lay-verify="required"<%}%>/>
+								</div>
+								<div class="layui-form-mid"><%if(isNotEmpty(user.id)){%><font color="#FF0000">若不修改密码，请留空</font><%}%></div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><%if(isEmpty(user.id)){%><font color="#FF0000"> * </font><%}%>确认密码</label>
+								<div class="layui-input-inline">
+									<input id="confirmNewPassword" name="confirmNewPassword" type="password" value="" maxlength="50" class="layui-input" <%if(isEmpty(user.id)){%>lay-verify="required"<%}%>/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<div class="layui-inline">
+									<label class="layui-form-label">电话</label>
+									<div class="layui-input-block">
+										<input type="text" name="phone" value="${user.phone}" class="layui-input"/>
+									</div>
+								</div>
+								<div class="layui-inline">
+									<label class="layui-form-label">手机</label>
+									<div class="layui-input-block">
+										<input  type="text" name="mobile" value="${user.mobile}"  class="layui-input"/>
+									</div>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="#FF0000"> * </font>允许登录</label>
+								<div class="layui-input-block">
+									<#radio name="loginFlag" items = "${@DictUtils.getDictList('yes_no')}" value="${user.loginFlag}"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">用户角色</label>
+								<div class="layui-input-block">
+									<%for(role in allRoles){%>
+									<input type="checkbox" name="roleIdList" title="${role.name}" value="${role.id}" lay-verify="required" <%if(array.contain(user.roleIdList,role.id)){%>checked<%}%> >
+									<%}%>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="layui-col-md4">
+					<div class="layui-card">
+						<div class="layui-card-header">头像</div>
+						<div class="layui-card-body">
+							<#avatarUpload id="nameImage" name="photo" value="${user.photo}"  width="150px" height="150px" required="false"/>
+						</div>
+					</div>
+					<div class="layui-card">
+						<div class="layui-card-body">
+							<div class="layui-form-item">
+								<label class="layui-form-label">归属公司</label>
+								<div class="layui-input-inline">
+									<#treeselect id="company" name="company.id" value="${user.company.id}" labelName="company.name" labelValue="${user.company.name}"
+									title="公司" url="/sys/office/treeData?type=1" cssClass="required" allowInput="false"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label">归属部门</label>
+								<div class="layui-input-inline">
+									<#treeselect id="office" name="office.id" value="${user.office.id}" labelName="office.name" labelValue="${user.office.name}"
+									title="部门" url="/sys/office/treeData?type=2" cssClass="required" notAllowSelectParent="true"/>
+								</div>
+							</div>
+							<div class="layui-form-item">
+								<label class="layui-form-label"><font color="#FF0000"> * </font>用户类型</label>
+								<div class="layui-input-inline">
+									<select name="userType" lay-verify="required">
+										<option value="">请选择</option>
+										<#options items = "${@DictUtils.getDictList('sys_user_type')}" value="${user.userType!}"/>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- 	<%if(isNotEmpty(user.id)){%>
+                <div class="layui-form-item">
+                    <div class="layui-col-md6">
+                        <label class="layui-form-label">创建时间:</label>
+                        <div class="layui-input-block">
+                            <div class="layui-form-mid">${user.createDate,dateFormat="yyyy-MM-dd HH:mm:ss"}</div>
+                        </div>
+                    </div>
+                    <div class="layui-col-md6">
+                        <label class="layui-form-label">最后登录:</label>
+                        <div class="layui-input-block">
+                            <div class="layui-form-mid">IP: ${user.loginIp}&nbsp;&nbsp;&nbsp;&nbsp;时间：${user.loginDate,dateFormat="yyyy-MM-dd HH:mm:ss"}</div>
+                        </div>
+                    </div>
+                </div>
+                <%}%> -->
+			<div class="layui-form-item">
+				<div class="layui-input-block" style="display: none;">
+					<%if(shiro.hasPermission("sys:user:edit")){%>
+					<button class="layui-btn" type="submit" lay-filter="addData" lay-submit>保 存</button>
+					<%}%>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script>
+    layui.use(['form', 'laydate'], function() {
+        var form = layui.form, laydate = layui.laydate;
+        form.render();
+        form.on("submit(addData)",function(data){
+            // 获取选中的角色
+            var check_arr = [];
+            $('input[name=roleIdList]:checked').each(function(){
+                check_arr.push($(this).val());
+            });
+            if(check_arr.length == 0){
+                layer.msg("请选择用户角色", {icon: 7, time:1500});
+                return false;
+            }
+            var index = top.layer.msg('数据提交中，请稍候',{icon: 16,time:false,shade:0.8});
+            var actionUrl = $("#inputForm").attr("action");
+            var formData = $("#inputForm").serialize();//序列化表格内容为字符串
+            $.ajax({
+                type:'post',
+                url:actionUrl,
+                data:formData,
+                cache:false,
+                dataType:'json',
+                success:function(result){
+                    setTimeout(function () {
+                        top.layer.msg(result.msg);
+                        parent.layer.closeAll();
+                    }, 300);
+                }
+            });
+            return false;
+        })
+    });
+    //父窗口调用表单提交方法
+    function saveForm(){
+        $("button[type='submit']").click();
+    }
+</script>
+<%}%>

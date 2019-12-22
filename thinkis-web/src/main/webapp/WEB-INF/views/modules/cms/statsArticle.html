@@ -1,0 +1,115 @@
+<%
+var headerPart = {
+%>
+<script type="text/javascript">
+    function autoRowSpan(tb,row,col){
+        var lastValue="",value="",pos=1;
+        for(var i=row;i<tb.rows.length;i++){
+            value = tb.rows[i].cells[col].innerText;
+            if(lastValue == value){
+                tb.rows[i].deleteCell(col);
+                tb.rows[i-pos].cells[col].rowSpan = tb.rows[i-pos].cells[col].rowSpan+1;
+                pos++;
+            }else{
+                lastValue = value;
+                pos=1;
+            }
+        }
+    }
+    $(document).ready(function(){
+        autoRowSpan(contentTable,0,0);
+        $("td,th").css({"text-align":"center","vertical-align":"middle"});
+    });
+    function page(n,s){
+        $("#pageNo").val(n);
+        $("#pageSize").val(s);
+        $("#searchForm").submit();
+        return false;
+    }
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<form id="searchForm" action="${ctx}/cms/stats/article" method="post" class="layui-form layui-card-header layuiadmin-card-header-auto">
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">归属栏目：</label>
+					<div class="layui-input-inline">
+						<#treeselect id="category" name="categoryId" value="${paramMap.id}" labelName="categoryName" labelValue="${paramMap.name}"
+						title="栏目" url="/cms/category/treeData" module="article" cssClass="input-small" allowClear="true"/>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">归属机构：</label>
+					<div class="layui-input-inline">
+						<#treeselect id="office" name="officeId" value="${paramMap.office.id!}" labelName="officeName" labelValue="${paramMap.office.name!}"
+						title="机构" url="/sys/office/treeData" cssClass="input-small" allowClear="true"/>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">完成时间：</label>
+					<div class="layui-input-inline">
+						<input id="beginDate"  name="beginDate"  type="text" readonly="readonly" class="layui-input" />
+						<script>
+							layui.use(['laydate'],function(){
+								var laydate = layui.laydate;
+								laydate.render({
+									elem: '#beginDate'
+								});
+							});
+						</script>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">结束日期：</label>
+					<div class="layui-input-inline">
+						<input id="endDate"  name="endDate"  type="text" readonly="readonly" class="layui-input" />
+						<script>
+							layui.use(['laydate'],function(){
+								var laydate = layui.laydate;
+								laydate.render({
+									elem: '#endDate'
+								});
+							});
+						</script>
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-useradmin" lay-submit="" lay-filter="LAY-enrollList-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+		</form>
+		<div class="kit-table-body">
+		<table id="contentTable" class="layui-table" >
+			<thead>
+			<tr>
+			<th style="text-align:center">父级栏目</th>
+			<th style="text-align:center">栏目名称</th>
+			<th style="text-align:center">信息量</th>
+			<th style="text-align:center">点击量</th>
+			<th style="text-align:center">最后更新时间</th>
+			<th style="text-align:center">归属机构</th>
+			</tr>
+			</thead>
+			<tbody>
+			<%for(stats in list){%>
+				<tr>
+					<td style="text-align:center"><a href="javascript:" onclick="$('#categoryId').val('${stats.parent.id}');$('#categoryName').val('${stats.parent.name}');$('#searchForm').submit();return false;">${stats.parent.name}</a></td>
+					<td style="text-align:center"><a href="javascript:" onclick="$('#categoryId').val('${stats.id}');$('#categoryName').val('${stats.name}');$('#searchForm').submit();return false;">${stats.name}</a></td>
+					<td style="text-align:center">${stats.cnt}</td>
+					<td style="text-align:center">${stats.hits}</td>
+					<td style="text-align:center">${stats.updateDate,dateFormat="yyyy-MM-dd HH:mm:ss"}</td>
+					<td style="text-align:center"><a href="javascript:" onclick="$('#officeId').val('${stats.office.id}');$('#officeName').val('${stats.office.name}');$('#searchForm').submit();return false;">${stats.office.name}</a></td>
+				</tr>
+			<%}elsefor{%>
+			<tr><td colspan="6" align="center">暂无数据</td></tr>
+			<%}%>
+			</tbody>
+		</table>
+		</div>
+	</div>
+</div>
+<%}%>

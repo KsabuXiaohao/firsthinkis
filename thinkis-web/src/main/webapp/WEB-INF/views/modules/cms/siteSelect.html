@@ -1,0 +1,30 @@
+<% layout("/layouts/micro.html"){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<div class="kit-table-body">
+			<table id="contentTable" class="layui-table" >
+				<thead>
+				<tr>
+					<th>名称</th>
+					<%if(shiro.hasPermission("cms:view")){%>
+						<th style="text-align:center;width: 100px;">操作</th>
+					<%}%>
+				</tr>
+				</thead>
+				<tbody>
+					<%for(site in @CmsUtils.getSiteList()){%>
+					<tr>
+						<td style="text-align:left"><a href="${ctx}/cms/site/select?id=${site.id}">${site.name}</a> ${@Site.getCurrentSiteId() == site.id ? ' <font color="red">[当前站点]</font>' : ''}</td>
+						<%if(shiro.hasPermission("cms:view")){%>
+						<td style="text-align:center">
+							<a class="layui-btn layui-btn-danger layui-btn-xs" href="${ctx}/cms/site/select?id=${site.id}">切换</a>
+						</td>
+						<%}%>
+					</tr>
+					<%}%>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<%}%>

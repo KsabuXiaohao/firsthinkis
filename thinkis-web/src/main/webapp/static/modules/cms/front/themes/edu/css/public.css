@@ -1,0 +1,59 @@
+﻿@charset "utf-8";
+/***公共样式****/
+ol, ul{list-style:none;}
+
+
+/*a 链接*/
+a { text-decoration:none; outline:none; transition:0.5s all;-webkit-transition:0.5s all;-moz-transition:0.5s all;-o-transition:0.5s all;-ms-transition:0.5s all;}
+
+i,em{ font-style:normal;}
+/*图片居中*/
+.jzimg { display:table-cell; *display:block; overflow:hidden; font:0px/0px 'Arial'; text-align:center; vertical-align:middle;}
+fieldset, img { border:0; vertical-align:middle}
+
+.jzimg img,.jzimg i{vertical-align:middle; max-width:100%; max-height:100%;}
+.jzimg i{height:100%; display:inline-block;}
+
+/*浮动*/
+.fl {float:left; display:inline}
+.fr {float:right; display:inline}
+.clear { clear:both}
+.clearfix { *zoom:1;}
+.clearfix:after{clear:both; display:block; height:0; visibility:hidden; line-height:0; content:'\20';}
+
+/* HTML5 重置为较旧版本的浏览器 */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section { display:block;}
+blockquote, q{quotes:none;}
+blockquote:before, blockquote:after, q:before, q:after { content:''; content:none; }
+table { border-collapse: collapse; border-spacing: 0; }
+
+/* 按钮样式 */
+input, button, textarea, select { font-size:100%; outline:none; resize:none}
+input[type="button"]{cursor:pointer; border:0}
+input[type="submit"]{cursor:pointer; border:0}
+input[type="reset"]{cursor:pointer; border:0}
+
+
+/*删除火狐下按钮默认样式*/
+input[type="reset"]::-moz-focus-inner,
+input[type="button"]::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner,
+input[type="file"] > input[type="button"]::-moz-focus-inner{ border:none; padding:0; }
+
+
+/*字体大小、缩进*/
+.f12 { font-size:12px;}
+.f13 { font-size:13px;}
+.f14 { font-size:14px;}
+.f16 { font-size:16px;}
+.f18{ font-size:18px;}
+.f20{ font-size:20px;}
+.t2{text-indent:2em;}
+
+
+/*上下间距*/
+.mb5 { margin-bottom:5px;}
+.mb10{ margin-bottom:10px;}
+.mb15{ margin-bottom:15px;}
+.mb20{ margin-bottom:20px;}
+.mb25{ margin-bottom:25px;}                                                                                            

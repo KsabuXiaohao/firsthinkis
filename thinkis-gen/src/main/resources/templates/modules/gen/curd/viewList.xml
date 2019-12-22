@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+	<name>viewList</name>
+	<filePath>src/main/webapp/WEB-INF/views/${lastPackageName}/${moduleName}/${subModuleName}</filePath>
+	<fileName>${className}List.html</fileName>
+	<content><![CDATA[
+<% layout("/layouts/micro.html",{title:"${functionNameSimple}管理"}){ %>
+<div class="layui-fluid">
+	<div class="layui-card">
+		<div class="layui-form layui-card-header layuiadmin-card-header-auto">
+			<div class="layui-form-item">
+				<#list table.columnList as c>
+				<div class="layui-inline">
+					<#if c.isQuery?? && c.isQuery == "1">
+					<label class="layui-form-label">${c.comments}：</label>
+					<div class="layui-input-block">
+					<#if c.showType == "input" || c.showType == "textarea">
+						<input class="layui-input" name="${c.javaFieldId}" id="${c.javaFieldId}" autocomplete="off">
+					<#elseif c.showType == "select">
+						<select name="${c.javaFieldId}">
+							<option value="" label="全部"/>
+							<<#noparse>#</#noparse>options items="${"$"}{@DictUtils.getDictList('${c.dictType}')}" value="${"$"}{${className}.${c.javaFieldId}!}"/>
+						</select>
+					<#elseif c.showType == "checkbox">
+						<<#noparse>#</#noparse>checkboxes name="${c.javaFieldId}" items="${"$"}{@DictUtils.getDictList('${c.dictType}')}" value="${"$"}{${className}.${c.javaFieldId}!}"/>
+					<#elseif c.showType == "radiobox">
+						<<#noparse>#</#noparse>radio name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" items="${"$"}{@DictUtils.getDictList('${c.dictType}')}" />
+					<#elseif c.showType == "dateselect" && c.queryType == "between">
+						<input name="begin${c.simpleJavaField?cap_first}" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+							value="<fmt:formatDate value="${"$"}{${className}.begin${c.simpleJavaField?cap_first}}" pattern="yyyy-MM-dd HH:mm:ss"/>"
+							onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:false});"/> -
+						<input name="end${c.simpleJavaField?cap_first}" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+							value="<fmt:formatDate value="${"$"}{${className}.end${c.simpleJavaField?cap_first}}" pattern="yyyy-MM-dd HH:mm:ss"/>"
+							onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:false});"/>
+						</div>
+					<#elseif c.showType == "dateselect">
+						<input class="layui-input" id="${c.javaFieldId}" name="${c.javaFieldId}" placeholder="起始日期" type="text" style="width: 150px;">
+						</div>
+					<#elseif c.showType == "userselect">
+						<<#noparse>#</#noparse>treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}!}"
+							title="用户" url="/sys/office/treeData?type=3" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
+					<#elseif c.showType == "officeselect">
+						<<#noparse>#</#noparse>treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}!}"
+							title="部门" url="/sys/office/treeData?type=2" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
+					<#elseif c.showType == "areaselect">
+						<<#noparse>#</#noparse>treeselect id="${c.simpleJavaField}" name="${c.javaFieldId}" value="${"$"}{${className}.${c.javaFieldId}!}" labelName="${c.javaFieldName}" labelValue="${"$"}{${className}.${c.javaFieldName}!}"
+							title="区域" url="/sys/area/treeData" cssClass="input-small" allowClear="true" notAllowSelectParent="true"/>
+					</#if>
+					</div>
+					</#if>
+					</div>
+				</#list>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-useradmin" lay-submit="" lay-filter="LAY-${className}-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="layui-card-body">
+			<%if(shiro.hasPermission("${permissionPrefix}:edit")){%>
+			<div style="padding-bottom: 10px;">
+				<button class="layui-btn layui-btn-normal add${className}_btn"><i class="layui-icon layui-icon-add-1"></i>添加</button>
+				<button class="layui-btn layui-btn-danger delAll_btn"><i class="layui-icon layui-icon-delete"></i>批量删除</button>
+			</div>
+			<%}%>
+			<table id="${className}List" lay-filter="${className}List"></table>
+
+			<!--操作-->
+			<script type="text/html" id="${className}ListBar">
+				<%if(shiro.hasPermission("${permissionPrefix}:edit")){%>
+				<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+				<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+				<%}%>
+				<a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="look">预览</a>
+			</script>
+		</div>
+	</form>
+</div>
+
+<script>
+    layui.use(['form','layer','laydate','table','laytpl'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery,
+            laydate = layui.laydate,
+            laytpl = layui.laytpl,
+            table = layui.table;
+
+        //列表
+        var tableIns = table.render({
+            elem: '#${className}List',
+            url : '${r"${ctx}"}/${urlPrefix}/listAjax',
+            cellMinWidth : 95,
+            page : true,
+            request: {
+                pageName: 'pageNo', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            limit : 15,
+            limits : [10,15,20,25],
+            id : "${className}ListTable",
+            cols : [[
+                {type: "checkbox", fixed:"left", width:50},
+				<#list table.columnList as c>
+				<#if c.isList?? && c.isList == "1">
+				<#if c.showType == "userselect" || c.showType == "officeselect" || c.showType == "areaselect">
+					{field:'${"$"}{${className}.${c.javaFieldName}}', title: '${c.comments}'},
+				<#else>
+					{field:'${c.javaFieldId}', title: '${c.comments}'},
+				</#if>
+				</#if>
+				</#list>
+				{title: '操作', width:170, templet:'#${className}ListBar',fixed:"right",align:"center"}
+
+            ]]
+        });
+
+        //搜索
+        form.on('submit(LAY-${className}-search)', function(data){
+			<#list table.columnList as c>
+				<#if c.isQuery?? && c.isQuery == "1">
+				var ${c.simpleJavaField} = $('#${c.simpleJavaField}');
+				</#if>
+			</#list>
+			table.reload("${className}ListTable",{
+				page: {
+					curr: 1 //重新从第 1 页开始
+				},
+				where: {
+                    <#list table.columnList as c>
+						<#if c.isQuery?? && c.isQuery == "1">
+						${c.simpleJavaField} : ${c.simpleJavaField}.val(),
+						</#if>
+					</#list>
+				}
+			})
+        });
+
+        //添加
+        function add${className}(id){
+            var index = layui.layer.open({
+                title : "添加${functionNameSimple}",
+                type : 2,
+                content : "${r"${ctx}"}/${urlPrefix}/form?id="+id,
+                area: ['90%', '80%'],
+                <%if(shiro.hasPermission("${permissionPrefix}:edit")){%>
+                btn: ['确定', '取消'],
+                yes: function(index, layero){
+                    var submit = layero.find('iframe').contents().find('#addData');
+                    submit.trigger('click');
+                }
+				<%}%>
+            })
+        }
+        $(".add${className}_btn").click(function(){
+            var id = '${"$"}{${className}.id}';
+            add${className}(id);
+        })
+
+
+        //批量删除
+        $(".delAll_btn").click(function(){
+            var checkStatus = table.checkStatus('${className}ListTable'),
+                data = checkStatus.data,
+                selectedIds = [];
+            if(data.length > 0) {
+                for (var i in data) {
+                    selectedIds.push(data[i].id);
+                }
+                layer.confirm('确定删除选中的数据？', {icon: 3, title: '提示信息'}, function (index) {
+                    $.post("${r"${ctx}"}/${urlPrefix}/batchDelete",{selectedIds:selectedIds.join(",")},function(result){
+                        if(result.code=="0"){
+                            layer.msg(result.msg);
+                        }else{
+                            layer.msg("删除失败");
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                })
+            }else{
+                layer.msg("请选择需要删除的数据");
+            }
+        })
+
+        //列表操作
+        table.on('tool(${className}List)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data;
+
+            if(layEvent === 'edit'){ //编辑
+                add${className}(data.id);
+            } else if(layEvent === 'del'){ //删除
+                layer.confirm('确定删除选中数据？',{icon:3, title:'提示信息'},function(index){
+                    $.post("${r"${ctx}"}/${urlPrefix}/delete",{id:data.id},function(result){
+                        if(result.code=="0"){
+                            layer.msg("删除成功");
+                        }else{
+                            layer.msg("删除失败");
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                });
+            } else if(layEvent === 'look'){ //预览
+                add${className}(data.id);
+            }
+        });
+
+    })
+</script>
+<%}%>]]>
+	</content>
+</template>

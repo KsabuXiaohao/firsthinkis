@@ -1,0 +1,71 @@
+<% layout("/modules/cms/front/themes/edu/common/layout.html",{nav:category.id}){ %>
+
+<div class="site-banner">
+  <div class="site-banner-bg layui-hide-xs" style="background-image: url('${ctxPath}/static/modules/cms/front/themes/${site.theme}/images/coach_banner.jpg'); background-size: cover;">
+  </div>
+  <div class="site-banner-main layui-hide-md layui-hide-lg ">
+    <div class="site-zfj">
+      <i class="layui-icon" style="color: #fff; color: rgba(255,255,255,.7);">&#xe7ae;</i>
+    </div>
+    <%
+    var topNews = @CmsUtils.getArticleList(site.id, "1003", 1, '');
+    for(article in topNews){
+    %>
+    <div class="layui-anim site-desc layui-hide-lg layui-hide-md ">
+      <h1 style="color: white;font-size: 20px;">${article.title!}</h1>
+      <p style="color: white;font-size: 14px;margin-top: 5px;" class="layui-hide-xs">度身定制课程，限量报名</p>
+    </div>
+    <div class="site-download">
+      <a  href="${article.url}"
+          class="layui-inline site-down" style="color: #fff;">
+        <cite class="layui-icon">&#xe609;</cite>
+        我要报名
+      </a>
+    </div>
+    <%}%>
+  </div>
+</div>
+
+<div class="ny-title">
+  <h5><i>师资力量</i></h5>
+  <span>Teacher strength</span>
+  <p>
+    选择我们的课程，是您取得成功的重大决定
+  </p>
+</div>
+<div class="teacher">
+  <div class="centerbox clearfix teacherbox owl-carousel">
+
+    <%
+    var teachers = @CmsUtils.getArticleList(site.id, "1008", 10, '');
+    for(teacher in teachers){
+    %>
+    <a href="${teacher.url}">
+      <dl>
+        <dt>
+          <img src="${teacher.image}"/>
+        </dt>
+        <dd class="teach-1">
+          <span>${teacher.title}</span>
+          <p>${teacher.keywords}</p>
+        </dd>
+        <dd class="teach-2"><p>${teacher.description}</p></dd>
+        <dd class="teach-3">查看详情</dd>
+      </dl>
+    </a>
+    <%}%>
+  </div>
+</div>
+
+<script>
+    $(function(){
+        $('.teacherbox').owlCarousel({
+            items: 4,
+            autoPlay: true,
+            navigation: true,
+            navigationText: ["",""],
+            scrollPerPage: true
+        });
+    });
+</script>
+<% } %>

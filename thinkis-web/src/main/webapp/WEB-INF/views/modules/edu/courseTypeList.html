@@ -1,0 +1,175 @@
+<% layout("/layouts/micro.html",{title:"课程类型管理"}){ %>
+<div class="layui-fluid">
+	<div class="layui-card">
+		<div class="layui-form layui-card-header layuiadmin-card-header-auto">
+			<div class="layui-form-item">
+				<div class="layui-inline">
+					<label class="layui-form-label">类型名称：</label>
+					<div class="layui-input-block">
+						<input class="layui-input" name="name" id="name" autocomplete="off">
+					</div>
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">状态：</label>
+					<div class="layui-input-block">
+						<input type="radio" name="status" value="" title="全部" checked=""/>
+						<#radio name="status" value="${courseType.status!}" items="${@DictUtils.getDictList('data_status')}" />
+					</div>
+				</div>
+				<div class="layui-inline">
+					<button class="layui-btn layuiadmin-btn-useradmin" lay-submit="" lay-filter="LAY-courseType-search">
+						<i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="layui-card-body">
+			<%if(shiro.hasPermission("edu:courseType:edit")){%>
+			<div style="padding-bottom: 10px;">
+				<button class="layui-btn layui-btn-normal addcourseType_btn"><i class="layui-icon layui-icon-add-1"></i>添加</button>
+				<button class="layui-btn layui-btn-danger delAll_btn"><i class="layui-icon layui-icon-delete"></i>批量删除</button>
+			</div>
+			<%}%>
+			<table id="courseTypeList" lay-filter="courseTypeList"></table>
+
+			<!--操作-->
+			<script type="text/html" id="courseTypeListBar">
+				<%if(shiro.hasPermission("edu:courseType:edit")){%>
+				<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+				<a class="layui-btn layui-btn-xs layui-btn-danger" lay-event="del">删除</a>
+				<%}%>
+				<a class="layui-btn layui-btn-xs layui-btn-primary" lay-event="look">预览</a>
+			</script>
+			<script type="text/html" id="statusTpl">
+				{{#  if(d.status === '1'){ }}
+				<span class="layui-badge layui-bg-green">{{ d.statusLabel }}</span>
+				{{#  } else { }}
+				<span class="layui-badge">{{ d.statusLabel }}</span>
+				{{#  } }}
+			</script>
+		</div>
+	</form>
+</div>
+
+<script>
+    layui.use(['form','layer','laydate','table','laytpl'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery,
+            laydate = layui.laydate,
+            laytpl = layui.laytpl,
+            table = layui.table;
+
+        //列表
+        var tableIns = table.render({
+            elem: '#courseTypeList',
+            url : '${ctx}/edu/courseType/listAjax',
+            cellMinWidth : 95,
+            page : true,
+            request: {
+                pageName: 'pageNo', //页码的参数名称，默认：page
+                limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            },
+            limit : 15,
+            limits : [10,15,20,25],
+            id : "courseTypeListTable",
+            cols : [[
+				{type: "checkbox", fixed:"left", width:50},
+				{field:'name', title: '类型名称'},
+				{field:'remarks', title: '备注信息'},
+                {field:'sort', title: '排序', width:80},
+                {field:'statusLabel', title: '状态', width:80,templet:'#statusTpl'},
+                {field:'updateDate', title: '更新时间', width:180},
+				{title: '操作', width:170, templet:'#courseTypeListBar',fixed:"right",align:"center"}
+            ]]
+        });
+
+        //搜索
+        form.on('submit(LAY-courseType-search)', function(data){
+				var name = $('#name');
+				var status = $("input[name='status']:checked");
+			table.reload("courseTypeListTable",{
+				page: {
+					curr: 1 //重新从第 1 页开始
+				},
+				where: {
+					name : name.val(),
+					status : status.val()
+				}
+			})
+        });
+
+        //添加
+        function addcourseType(id){
+            var index = layui.layer.open({
+                title : "添加课程类型",
+                type : 2,
+                content : "${ctx}/edu/courseType/form?id="+id,
+                area: ['800px', '500px'],
+                <%if(shiro.hasPermission("edu:courseType:edit")){%>
+                btn: ['确定', '取消'],
+                yes: function(index, layero){
+                    var submit = layero.find('iframe').contents().find('#addData');
+                    submit.trigger('click');
+                }
+				<%}%>
+            })
+        }
+        $(".addcourseType_btn").click(function(){
+            var id = '${courseType.id}';
+            addcourseType(id);
+        })
+
+
+        //批量删除
+        $(".delAll_btn").click(function(){
+            var checkStatus = table.checkStatus('courseTypeListTable'),
+                data = checkStatus.data,
+                selectedIds = [];
+            if(data.length > 0) {
+                for (var i in data) {
+                    selectedIds.push(data[i].id);
+                }
+                layer.confirm('确定删除选中的数据？', {icon: 3, title: '提示信息'}, function (index) {
+                    $.post("${ctx}/edu/courseType/batchDelete",{selectedIds:selectedIds.join(",")},function(result){
+                        if(result.code=="0"){
+                            layer.msg(result.msg);
+                        }else{
+                            layer.msg("删除失败");
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                })
+            }else{
+                layer.msg("请选择需要删除的数据");
+            }
+        })
+
+        //列表操作
+        table.on('tool(courseTypeList)', function(obj){
+            var layEvent = obj.event,
+                data = obj.data;
+
+            if(layEvent === 'edit'){ //编辑
+                addcourseType(data.id);
+            } else if(layEvent === 'del'){ //删除
+                layer.confirm('确定删除选中数据？',{icon:3, title:'提示信息'},function(index){
+                    $.post("${ctx}/edu/courseType/delete",{id:data.id},function(result){
+                        if(result.code=="0"){
+                            layer.msg("删除成功");
+                        }else{
+                            layer.msg("删除失败");
+                        }
+                        tableIns.reload();
+                        layer.close(index);
+                    });
+                });
+            } else if(layEvent === 'look'){ //预览
+                addcourseType(data.id);
+            }
+        });
+
+    })
+</script>
+<%}%>

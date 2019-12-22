@@ -1,0 +1,172 @@
+<%
+var headerPart = {
+%>
+<style type="text/css">
+	.layui-fluid {
+		padding: 15px;
+	}
+	.layadmin-homepage-panel .text-center, .layadmin-maillist-fluid .layadmin-text-center {
+		text-align: center;
+	}
+	.layadmin-maillist-fluid .layadmin-text-center img {
+		max-width: 80%;
+		margin-top: 5px;
+		height: 133px;
+		width: 133px;
+	}
+	.layadmin-maillist-fluid .layadmin-maillist-img {
+		margin-top: 5px;
+	}
+	.layadmin-maillist-fluid .layadmin-font-blod {
+		font-weight: 600;
+	}
+	.layadmin-maillist-fluid .layadmin-contact-box {
+		padding: 20px;
+		background-color: #fff;
+		border: 1px solid #e7eaec;
+		overflow: hidden;
+	}
+	.layadmin-maillist-fluid .layadmin-padding-left20 {
+		padding-left: 20px;
+	}
+	.layadmin-maillist-fluid .layadmin-title {
+		margin: 5px 0 10px;
+		word-break: normal;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.layadmin-maillist-fluid .layadmin-textimg {
+		line-height: 25px;
+		margin-bottom: 10px;
+	}
+	.layadmin-maillist-fluid .layadmin-address {
+		line-height: 1.5;
+		margin-bottom: 20px;
+	}
+	.switch-btn{
+		position: absolute;
+		bottom: 15px;
+		right: 15px;
+	}
+	.delete-btn{
+		font-size: 20px;
+		color: red;
+		position: absolute;
+		right: 15px;
+		top: 15px;
+		cursor: pointer;
+	}
+</style>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="childrenBody">
+	<div class="kit-table">
+		<form class="layui-form" lay-filter="kit-search-form">
+			<div class="kit-table-header">
+				<div class="kit-search-btns">
+					<%if(shiro.hasPermission("oss:oss:edit")){%>
+					<a class="layui-btn layui-btn-normal addoss_btn"><i class="layui-icon">&#xe608;</i>新增</a>
+					<%}%>
+				</div>
+				<!--<div class="kit-search-inputs clearfix">
+					<div class="kit-search-keyword">
+						<input type="text" class="layui-input" id="keyword" name="keyword" placeholder="搜索关键字.." />
+						<button class="search_btn" type="button"><i class="layui-icon">&#xe615;</i></button>
+					</div>
+				</div>-->
+			</div>
+		</form>
+		<div class="kit-table-body">
+			<div class="layui-fluid layadmin-maillist-fluid">
+				<div class="layui-row layui-col-space15" id="ossList">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+    layui.use(['form','layer','laydate','table','flow'],function(){
+        var form = layui.form,
+            layer = parent.layer === undefined ? layui.layer : top.layer,
+            $ = layui.jquery,
+            flow = layui.flow,
+            table = layui.table;
+        form.render();
+
+        function loadData(){
+            $("#ossList").html("");
+            var imgNums = 9;  //单页显示图片数量
+            flow.load({
+                elem: '#ossList' //流加载容器
+                , done: function (page, next) { //执行下一页的回调
+                    $.get("${ctx}/oss/oss/listAjax",{pageNo:1,pageSize:imgNums*page},function(res){
+                        console.log(res);
+                        var imgList = [],data = res.data;
+                        var maxPage = imgNums*page < res.count ? imgNums*page : res.count;
+                        for(var i=imgNums*(page-1); i<maxPage; i++){
+                            var fileExt = data[i].fileExt;
+                            var filePath = "";
+                            if(fileExt == "jpg"||fileExt == "JPG"||fileExt == "jpeg"||fileExt == "JPEG"||fileExt == "png"||fileExt == "PNG" ){
+                                filePath = data[i].fileId;
+                            }else{
+                                filePath = "${ctxStatic}/images/file.png";
+                            }
+                            var html = "<div class=\"layui-col-md4 layui-col-sm6\">\n" +
+                                "<div class=\"layadmin-contact-box\">\n" +
+                                "<i class=\"layui-icon pull-right delete-btn\" id='"+data[i].id+"'></i>"+
+                                "<div class=\"layui-col-md4 layui-col-sm6\">\n" +
+                                "<div class=\"layadmin-text-center\">\n" +
+                                "<img src=\""+filePath+"\">\n" +
+                                "</div>\n" +
+                                "</div>\n" +
+                                "<div class=\"layui-col-md8 layadmin-padding-left20 layui-col-sm6\">\n" +
+                                "<h3 class=\"layadmin-title\">\n" +
+                                "<strong title='"+data[i].fileName+"'>"+data[i].fileName+"</strong>\n" +
+                                "</h3>\n" +
+                                "<p class=\"layadmin-textimg\">\n" +
+                                "<i class=\"layui-icon layui-icon-date\"></i>\n" +
+                                data[i].createDate +
+                                "</p>\n" +
+                                "<div class=\"layadmin-address\">\n" +
+                                "<strong>文件类型："+data[i].fileExt+"</strong>\n" +
+                                "<br>\n" +
+                                "文件大小："+data[i].fileLengthLabel+
+                                "</div>\n" +
+                                "</div>\n" +
+                                "</div>" +
+                                "</div>";
+                            imgList.push(html);
+                        }
+                        next(imgList.join(''), page < (res.count/imgNums));
+                        //删除
+                        $(".delete-btn").on("click",function(){
+                            var id = $(this).attr("id");
+                            layer.confirm('确定删除选中数据？',{icon:3, title:'确认信息'},function(index){
+                                $.post("${ctx}/oss/oss/delete",{id:id},function(result){
+                                    if(result.code=="0"){
+                                        layer.msg("删除成功");
+                                    }else{
+                                        layer.msg("删除失败");
+                                    }
+                                    loadData();
+                                    layer.close(index);
+                                });
+                            });
+                        });
+                    });
+                }
+            })
+        }
+        loadData();
+
+        //添加
+        function addoss(id){
+            Common.openDlg("${ctx}/oss/oss/form?id="+id,"添加附件管理");
+        }
+        $(".addoss_btn").click(function(){
+            var id = '${oss.id}';
+            addoss(id);
+        })
+    })
+</script>
+<%}%>

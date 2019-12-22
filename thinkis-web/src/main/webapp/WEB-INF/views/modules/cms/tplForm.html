@@ -1,0 +1,44 @@
+<%
+var headerPart = {
+%>
+<style>
+</style>
+<script type="text/javascript">
+
+</script>
+<% }; %>
+<% layout("/layouts/micro.html",{headerSection:headerPart}){ %>
+<div class="layui-tab layui-tab-brief childrenBody">
+	<ul class="layui-tab-title">
+		<li class="layui-this"><a>模板管理</a></li>
+	</ul>
+	<div class="layui-tab-content">
+		<form id="inputForm" action="${ctx}/cms/template/save" method="post" class="layui-form">
+			<input type="hidden" name="name" value="${template.name}" />
+			<#message content="${message!}"/>
+			<div class="layui-form-item">
+				<label class="layui-form-label" >文件名:</label>
+				<div class="layui-input-inline">
+					<input type="text" name="filename" value="${template.filename}" htmlEscape="false" maxlength="50" class="layui-input"/>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label" >文件内容:</label>
+				<div class="layui-input-block">
+					<textarea id="source" name="source" htmlEscape="true" class="layui-textarea" style="height: 550px;">${template.source}</textarea>
+				</div>
+			</div>
+
+			<!--<div class="layui-form-item">
+				<div class="layui-input-block">
+				<%if(shiro.hasPermission("cms:template:edit")){%>
+					<input id="btnSubmit" class="layui-btn btn-primary" type="submit" value="保 存"/>&nbsp;
+				<%}%>
+				<input id="btnCancel" class="layui-btn" type="button" value="返 回" onclick="history.go(-1)"/>
+				</div>
+			</div>-->
+		</form>
+	</div>
+</div>
+<%}%>
